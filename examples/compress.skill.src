@@ -1,0 +1,114 @@
+# compress.skill.src
+
+## Intent
+Produce a Nyquist-sampled session summary optimized for Claude-to-Claude transfer. A cold agent reading it makes identical decisions to one who sat through the full session.
+
+## Carried
+
+The method below defines the output. It is inlined in full so the same compression behavior reproduces on any stack. The only local dependencies are the three binds declared in the Bound section: the work tracker, the provenance marks, and the source-check tools. Everything else carries.
+
+### Density principle
+The output is signal, not documentation. No prose, no explanations, no narrative summaries. Each line earns its place by changing a resuming agent's behavior. Abbreviate freely; this is Claude-to-Claude, never human-facing docs. The human principal's exact words survive only when they carry meaning no paraphrase can (analogies, framings, key phrases), quoted with `""`. If the session produced no decisions, say so. Never manufacture signal.
+
+### Calibration rule
+If deleting a line would not change a resuming agent's behavior, it is over-sampled. If a resuming agent would re-explore a rejected path or violate a stated constraint, it is under-sampled. Hit the boundary exactly. Compression target: a 200K-token session compresses to under 2K tokens. Above that, you are over-sampling.
+
+### Session type classification
+Classify before extracting. The signal vocabulary changes by type. (`P` below = the local human-principal provenance mark, `A` = the agent mark; see Bound: provenance-marks.)
+
+| Type | Primary signal | Line format |
+|------|---------------|-------------|
+| decision | Choices made, alternatives killed | `[seq#] [P\|A] decision :: kill-reason :: [!~?]` |
+| debug | Hypotheses eliminated, root cause narrowed | `[seq#] [P\|A] hypothesis :: evidence for/against :: [confirmed\|eliminated\|open]` |
+| explore | Mental model changes, things learned | `[seq#] [P\|A] learning :: what changed in understanding :: [!~?]` |
+| implement | What shipped, what broke, what is half-done | `[seq#] [P\|A] change :: outcome :: [*=shipped\|partial\|broke]` |
+
+Mixed sessions use multiple vocabularies. Classify per-entry, not per-session. The section header matches the type: `DECISIONS`, `HYPOTHESES`, `LEARNINGS`, `CHANGES`, or multiple if mixed. The five phases, calibration rule, and all other mechanics are type-independent.
+
+### Five-phase review cycle
+Execute all five phases sequentially. Do not skip phases. Do not emit output until Phase 5 passes.
+
+**Phase 1: Extract.** Walk the conversation linearly. Pull every decision/hypothesis/learning/change (per session type), every constraint (any rule, preference, or boundary stated), every open thread (questions raised but not resolved), every state change (items, commits, files modified, deployments). Over-sample deliberately. Capture everything. Do not judge relevance yet.
+
+Field discipline during extraction:
+- The middle field (`::` between decision and conviction) is always the kill-reason: why the alternative lost or was rejected. It is NOT a description, context, or purpose field. If a decision has no rejected alternative (a simple directive), leave the field as `::` with nothing between the separators rather than filling it with unrelated context. A cold agent parsing this field must trust that it answers "why not the other way?"
+- Provenance, not just direction. The principal mark means the human principal originated this. The agent mark means the agent originated it. When the principal relays, endorses, or pastes another agent's output without modification, mark it `principal→agent` (principal relayed agent-originated content). This matters: principal = independent human judgment, principal→agent = principal trusts agent analysis enough to act on it, agent = agent proactively raised it. All three encode different things about what a cold agent should treat as revisitable. (The concrete marks resolve via Bound: provenance-marks.)
+
+**Phase 2: Deduplicate.** Collapse repeated statements of the same information bit:
+- Same constraint stated N times across N files → one constraint entry.
+- Same decision referenced from multiple angles → one entry with the strongest kill-reason.
+- Iterative refinement ("try again" / "closer" / "that one") → just the landing point plus the key rejection reason from the journey.
+- Two statements about the same topic with different initiators (principal vs agent) are NOT duplicates. They encode different agency. Keep both, even if the information content overlaps. Collapse the content, preserve the attribution split.
+
+This is where most compression happens.
+
+**Phase 3: Source-check.** For each remaining item, ask: is this recoverable from code, version-control history, item state, or the repo's standing-instructions file? (See Bound: source-check-tools.)
+- If a diff-by-revision shows what changed → drop the what, keep only the why.
+- If the tracker item has the spec → reference the item ID, do not repeat the spec.
+- If the constraint is already in the standing-instructions file → drop it entirely.
+- If the file's current state reflects the decision → drop the decision.
+
+The summary must not duplicate what tools can reconstruct. It carries only the reasoning and context that lives nowhere else.
+
+**Phase 4: Counterfactual test (the Nyquist filter).** For each remaining item, ask: if I deleted this line, would a cold agent make a different decision?
+- If no → cut it (over-sampled).
+- If deleting it would cause re-exploration of a rejected path → keep it.
+- If deleting it would violate a constraint the user set → keep it.
+- If deleting it would miss an open question that needs resolution → keep it.
+
+**Phase 5: Adversarial reconstruction.** Read the compressed output as if you have zero conversation history. Attempt to find: a question a resuming agent would need answered that the summary cannot answer; a decision the agent would revisit because the kill-reason is missing; a constraint the agent would violate because it is not mentioned.
+
+If gaps found: go back to Phase 1 scoped to just the gap (not the whole conversation). Run phases 1-5 on the missing material only, then merge into the output. Repeat until clean. Exit condition: Phase 5 produces zero gaps. Emit the output.
+
+### Output format
+The shape is carried. The bind points (provenance marks `P|A`, tracker item IDs) resolve locally.
+
+```
+---
+session: YYYY-MM-DD
+scope: [what was covered]
+type: [decision | debug | explore | implement | mixed]
+---
+
+DECISIONS
+[seq#] [P|A] decision :: kill-reason :: [!~?] [*]
+
+CONSTRAINTS
+> constraint (deduplicated, novel only)
+
+OPEN
+?P question waiting for the human principal
+?A next-action waiting for execution
+
+STATE
++ item created (id, one-line purpose)
+x item closed (id)
+~ item updated (id, what changed)
+commits: hash hash hash
+files: path path path (only if not inferable from commits)
+```
+
+Field key:
+- `seq#`: order within session (recovers timeline).
+- principal mark: principal-originated / agent mark: agent-originated / `principal→agent`: principal relayed agent-originated content, endorsed without modification.
+- `!`: strong conviction / `~`: indifferent / `?`: uncertain, may revisit.
+- `*`: shipped (committed, deployed, cannot easily undo). No mark = soft (discussed/agreed, no artifact yet). Shipped entries are constraints; soft entries can be revisited.
+- `::`: separates decision from kill-reason.
+- `?P`: blocked on the human principal (needs input/direction).
+- `?A`: blocked on execution (agent can just do it).
+
+## Bound
+
+- **work-tracker**: requires the local work-item tracker: its show-by-ID command and item-ID format, used to reference an item's spec instead of repeating it, and to record items created/closed/updated in STATE.
+- **provenance-marks**: requires the local two-source provenance convention: the mark for the human principal who originates direction, the mark for the agent, and the relayed form. These fill the `P|A`, `principal→agent`, `?P`, and `?A` slots in the line format and output. The mechanism (human-origin vs agent-origin vs relay) is carried; only the concrete marks bind.
+- **source-check-tools**: requires the local reconstruction tools for Phase 3: a diff-by-revision command (what changed since a commit/hash), the tracker show command (the spec), and the repo's standing-instructions file (the always-on constraints). An item is dropped from the summary when one of these can already reconstruct it.
+
+## Checks
+- (mechanical) Every file path, commit hash, item ID, command string, and error string that appears in the source conversation survives verbatim in the output. No paraphrase of these tokens.
+- (mechanical) No prose paragraphs, no narrative explanation, no human-facing summary text. Lines only, in the carried format.
+- (mechanical) Output carries the YAML front matter (session, scope, type) and uses only the carried section headers (DECISIONS/HYPOTHESES/LEARNINGS/CHANGES, CONSTRAINTS, OPEN, STATE).
+- (mechanical) The middle `::` field holds a kill-reason or is empty. It never holds description or context.
+- (mechanical) Constraints already in the repo standing-instructions file, and specs already in a tracker item, do not reappear in the output.
+- (behavioral) Nyquist boundary: deleting any kept line would change a resuming cold agent's decision. Nothing kept is recoverable from code, diff, tracker, or standing-instructions.
+- (behavioral) Provenance split preserved: human-originated and agent-originated statements on the same topic are both kept with distinct marks, not merged.
+- (behavioral) Compression ratio in range: a long session lands under the carried target (200K → under 2K tokens), and a cold agent reconstructing from the output alone would not re-explore a rejected path or violate a stated constraint.

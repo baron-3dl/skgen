@@ -1,0 +1,376 @@
+# swarm-dispatch.skill.src
+
+## Intent
+Execute an approved item tree as a typed swarm: fan typed agents out over the
+ready item set, adapt the plan between waves, verify every wave adversarially, and
+gate integration before closing the tree.
+
+## Carried
+
+The defining payload here is the **orchestration method**: the reasoning a single
+orchestrator runs to drive a tree of work to completion through repeated waves of
+parallel agents. The method is inlined in full below so it reproduces identically
+on any stack. It is written against abstract capabilities, each declared in
+Bound: a **parallel-execution mechanism** (call it MECH), a **work-tracker** (call
+it TRACK), a **version-control substrate** (call it VCS), an **adversarial
+design-review** capability (call it DESIGN-REVIEW), an **agent registry** (call it
+REGISTRY), and an optional **coordination-substrate** (call it COORD). The method
+names only those abstractions. The concrete tools that fill them live in Bound and
+are resolved at compile. With the bind names left abstract the method below is
+still a complete, runnable orchestration procedure: that is the test it must pass.
+
+### The orchestrator role
+You are the orchestrator: a planning-dispatching loop, not a static executor. You
+alternate between TRACK (the persistent work graph, which you own and mutate
+authoritatively), VCS (the version-control branch-and-merge-queue substrate, also
+yours to drive), and MECH (which fans typed agents out and hands you back
+structured results). Every authoritative work-graph mutation (claim, close, fail,
+gate, dependency edit) is yours and yours alone. Agents never close items. The
+single thing that crosses from an agent back to you is a schema-validated
+structured value; you drive all decisions off that value.
+
+One agent per item. Each agent works exactly one item and returns one
+schema-validated result, then exits. No long-lived workers, no agent runs longer
+than one task. Prior rulings live in the item's tracker context (you fold them in
+on re-dispatch), not in any agent's window.
+
+Typed dispatch. Read each item's agent-type annotation and compose the matching
+agent call: an implementation item gets an implementer, a review item gets a
+reviewer, a sweep item gets a sweeper. Wave composition shifts as the tree
+progresses: early waves are mostly implementers, later waves reviewers and
+sweepers. Read the agent registry (a Bound location) to see which agent types
+exist. If an item needs a type that does not exist, escalate to the user.
+
+### Two repo-access strategies (a per-agent option of MECH)
+- **worktree** (default): each implementer runs in an isolated filesystem
+  worktree, edits there, and returns its branch name in the schema. After MECH
+  returns, you (main loop) merge branches. No cross-worker claims: you assign
+  items by handing them into the wave's work-list.
+- **shared**: agents edit the shared repo with no isolation. Safe only when the
+  wave's items touch disjoint files (the plan's merge-face grouping guarantees
+  this, not any runtime coordination).
+
+In both: one agent per item, and no COORD in the dispatch path. Coordination that
+once needed a message bus now rides the structured returns from MECH. The only
+COORD use that remains is optional and out-of-band (cross-session human-visible
+gate/status notices); it is never required and never on the dispatch path.
+
+### The result schema (what every implementer agent returns)
+Each implementer agent call must return an object validating against this schema.
+You drive all close/merge decisions off it:
+
+```json
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "item_id":          { "type": "string" },
+    "branch":           { "type": "string" },
+    "tests_green":      { "type": "boolean" },
+    "has_schema_change":{ "type": "boolean" },
+    "summary":          { "type": "string" },
+    "findings":         { "type": "array", "items": { "type": "object" } },
+    "test_decisions":   { "type": "array", "items": { "type": "object" } },
+    "escalation":       {
+      "type": "object",
+      "properties": {
+        "category": { "type": "string", "enum": ["architecture","scope","interface","dependency"] },
+        "question": { "type": "string" }
+      },
+      "required": ["category","question"]
+    }
+  },
+  "required": ["item_id","branch","tests_green","has_schema_change","summary","test_decisions"]
+}
+```
+
+`test_decisions` carries what the implementer tested and which mocks it chose; this
+is the input the adversarial-verify stage challenges. `escalation` is present only
+when the agent hit a design decision it could not make alone: it returns the
+question as data rather than blocking. Reviewer/sweeper agents return a findings
+schema only: `{ findings: [ { file, location, severity, category, description } ] }`.
+
+### The orchestrator loop
+```
+1. SETUP (main loop):
+   a. Read the parent and tree from TRACK (dependency tree of the parent item).
+   b. Record swarm start to telemetry.
+   c. Resolve any read-only design context to hand workers (optional).
+
+2. LOOP:
+   a. Ask TRACK for the ready set (actionable items, no open blockers).
+   b. WAVE PLANNING:
+      - Compute dependency depth for each ready item (hops to tree root).
+      - Identify the critical path (longest chain from ready items to completion).
+      - Prioritize critical-path items in this wave.
+      - Report: "Wave N: dispatching X items. Critical path: A -> B -> C (N hops)."
+   c. CHECK PRIOR GATE: if an async integration gate is running from a previous
+      wave, check its result before proceeding:
+      - Green -> continue. Red -> halt dispatch, create a fix item, dispatch it
+        immediately. Still running -> proceed (optimistic pipelining).
+   d. BASELINE: run the full test suite (main loop).
+      - GREEN -> record baseline, proceed.
+      - RED (pre-existing failure) -> Red Baseline Resolution. DO NOT DISPATCH on a
+        red baseline. Fix it first.
+   e. CLAIM + BUILD WORK-LIST: for each item in the wave:
+      - Claim it in TRACK (authoritative; the claim is yours).
+      - Read its agent-type annotation; look up the spec in the agent registry.
+        If no spec exists for the type, escalate to the user.
+      - Assemble a work-list entry: { item_id, agent_type, model_tier, effort,
+        test_depth, mock_scope, item_context, design_context }.
+      - Record a dispatch_start telemetry entry.
+   f. AUTHOR + RUN THE DISPATCH (MECH):
+      - For implementer items: an implement -> verify pipeline per item, where each
+        item flows through both stages with no barrier between items (so verify
+        runs concurrently with other items' implementers). Stage 1 returns the
+        result schema; stage 2 challenges test_decisions and returns a verdict.
+        Implementers get worktree isolation under the worktree strategy.
+      - For reviewer/sweeper items: an independent parallel fan-out returning the
+        findings schema.
+      - Mixed wave: do both and merge in the return.
+      - Set model/effort per agent from the work-list. Route verify at the
+        strongest available judging tier; never route security/exploit work to a
+        model whose classifier refuses it.
+      - The dispatch dedups findings before returning, assembles a compact summary,
+        and returns the structured array of per-item results + verdicts + any
+        escalations. It does NOT return raw agent payloads.
+      - Hand the work-list into MECH as its input arguments.
+   g. INGEST THE RETURN (main loop): per item you get
+        { item_id, branch, tests_green, has_schema_change, summary, findings,
+          test_decisions, verify_verdict, escalation? }
+      Record a dispatch_complete telemetry entry per item (outcome, wall-clock, and
+      per-agent token usage from the dispatch return).
+   h. ROUTE ESCALATIONS (main loop): for each item with an escalation:
+      - architecture -> three-pass adversarial design review.
+      - scope        -> human gate, or rule directly if within your authority.
+      - interface    -> check if a peer item has context; route or rule.
+      - dependency   -> add a dependency edge to re-sequence; item re-enters ready.
+      Once resolved, fold the ruling into item context and re-dispatch in a later wave.
+   i. VERIFY GATE (main loop, unconditional for any wave with implementer items):
+      For each item's verify verdict:
+      - "clean" -> eligible to merge.
+      - "proven-inability" + prerequisite filed -> eligible (human will provision;
+        create the prerequisite item if the verdict named one and it is missing).
+      - "unresolved" (mocks challenged, not rewritten) -> DO NOT MERGE. Re-dispatch
+        the implementer with the verify finding as a constraint. Loop until "clean"
+        or "proven-inability". Do not skip, do not force-close.
+      TO WAIVE: open a human gate of type verify-waive with reasoning. The human
+      approves or rejects. You may NOT waive your own oversight (a conditional gate
+      becomes a self-reinforcing skip: measured 29 PRs merged unverified).
+   j. ASSESS (adaptive planning / completeness critic): does the tree need new items?
+      - Reviewer found a bug -> create an implementation item (light decomposition).
+      - Sweeper found a gap -> create a test item.
+      - Integration surprise -> create a design item.
+      Scale decomposition rigor to the size of the addition; wire dependencies.
+   k. APPLY OUTCOMES (main loop, authoritative): for each item in the wave:
+      - merge-eligible + merged -> close done with a reason.
+      - failed (tests red, no recovery) -> close failed with a reason.
+      - escalated/blocked -> leave claimed; it re-enters via (h).
+      For each item that returned a branch: create/merge its PR through the merge
+      queue (never push to main directly), delete the branch, then close the item.
+   l. INTEGRATION GATE (conditional + async; see below).
+   m. REPEAT from (a).
+
+3. WHEN the ready set is empty AND no unresolved findings/verdicts/escalations remain:
+   FINAL GATE: run the full test suite synchronously (main loop). Mandatory, never
+   skipped. Then close the parent item with a reason. Write telemetry.
+```
+
+### Verify pattern 1: adversarial verify (mandatory, in-wave)
+Verify is not a separate dispatchable item and not optional. It is the second
+stage of a per-item implement -> verify pipeline:
+- Stage 1 (implementer): works the item, returns the result schema (incl. test_decisions).
+- Stage 2 (verify-adversary, strongest judging tier): receives the implementer's
+  returned test_decisions and challenges every mock. Does this test hit ground
+  source truth, or does it mock away the thing under test? For each challenged
+  mock, demand a real test or a proof of inability. Returns a verdict:
+  `{ item_id, verdict: "clean"|"unresolved"|"proven-inability",
+     challenged_mocks: [ { mock, why_inadequate } ],
+     prerequisite_filed: "<what the human must provide>" (only if proven-inability) }`.
+
+"clean" = no mock evades ground truth. "unresolved" = at least one mock challenged
+and not yet rewritten. "proven-inability" = the agent genuinely cannot test for
+real (missing dependency/infra/credential) AND the prerequisite is named. "It is
+too hard" and "it would take too long" are NOT proven-inability. The wave cannot
+merge until verdicts resolve. The gate is enforced in the main loop (step i); the
+dispatch only reports the verdict.
+
+### Verify pattern 2: loop until dry
+The loop runs until three conditions all hold: the ready set is empty, no
+review/sweep finding remains unaddressed (each became a new item or was dismissed
+with a reason), and no verify verdict remains "unresolved". Only then is the final
+gate run and the parent closed. A drained ready set alone is not completion: open
+findings and open verdicts keep the loop alive.
+
+### Verify pattern 3: completeness critic (adaptive planning)
+The tree is a living document. Reviewer and sweeper findings are how the swarm
+discovers what the plan missed. Each finding becomes a new tracker item, wired into
+the tree, ready for the next wave. Rigor scales with addition size:
+- Small fix from a finding -> add item, wire deps, dispatch.
+- Medium gap -> mini decomposition (outcome + validation).
+- Major architectural issue -> full decomposition, present to the user.
+The completion check above is the critic's gate: the swarm is not done while any
+finding is unaddressed.
+
+### The integration gate
+The integration gate verifies the merged result of a wave. It runs in the main
+loop (MECH cannot run tests or VCS operations). Three levels; pick by wave characteristics:
+
+| Level | When | Action | Blocks next wave? |
+|-------|------|--------|-------------------|
+| SKIP  | All changes isolated (different packages, no shared interfaces, no item returned has_schema_change) | No test run | No |
+| ASYNC | Changes touch shared code/multiple packages, but the next wave does not depend on this wave's output | Push branch, run full suite in background or CI; check result at top of next iteration | No |
+| SYNC  | Final wave, OR a prior async gate failed, OR wave touched critical paths (auth, billing, data integrity) | Run full suite, block until green | Yes |
+
+Decision flow after merge:
+1. Final wave? -> SYNC (mandatory).
+2. A prior async gate came back red? -> SYNC (fix before continuing).
+3. Any item returned has_schema_change? -> ASYNC.
+4. Changes span multiple packages / shared interfaces? -> ASYNC.
+5. All changes isolated? -> SKIP.
+
+Async mechanics: push the merged branch to a CI-triggerable ref; trigger CI or run
+the full suite in the background; record the run/task id. At the next iteration's
+prior-gate check: green -> continue and clean up; red -> halt dispatch, find the
+breaking change, create a fix item, dispatch immediately; still running -> proceed
+optimistically. The final gate is never skipped.
+
+### Red baseline resolution
+A red baseline blocks everything downstream: regressions become undetectable. The
+failure must be resolved, not deferred. The swarm halts. Chain:
+1. You run the baseline and see RED. Fix trivially (import error, config drift) if
+   you can. Otherwise author a single-item fix dispatch with the failing test as
+   the constraint at priority 0; the swarm is halted until green. Fix returns
+   green -> re-run baseline, resume. Fix returns red or escalates -> route to
+   adversarial design review.
+2. Design review rules on the correct fix, or, if it needs human input (missing
+   dependency, infra, credentials), open a human gate naming what is needed.
+3. Human provides the dependency / makes the call; you resume.
+Never acceptable: filing the failure and moving on; noting "pre-existing failure"
+and continuing; skipping the failing test; closing with "tests were already
+failing". A flaky baseline test is a quality defect, not a trivial fix: create an
+item, make the test deterministic (not retries or longer timeouts), and treat it
+as a red baseline if it blocks.
+
+### Multi-session coordination
+Multiple orchestrators on one repo coordinate through TRACK (claims are
+authoritative and visible cross-session, so a claimed item never appears in another
+orchestrator's ready set) and the VCS merge queue (orchestrators serialize on
+main; never push to main directly). A schema change another orchestrator merges
+surfaces as a baseline failure in this orchestrator's loop and is handled by Red
+Baseline Resolution. Human-visible cross-session gates ride on the tracker's gate
+queue. COORD, if present, may carry an optional live human feed but is not the
+coordination substrate for assignment or merge.
+
+### Worker replacement
+If an agent produces poor output (shallow analysis, missed constraints),
+re-author its agent call at a higher model tier or effort and re-run. Log the
+escalation in the item.
+
+### Agent prompts (authored into the dispatch by you)
+Implementer (stage 1 of the implement -> verify pipeline):
+```
+You are an implementer working exactly one item. Complete it and return the result schema.
+Item: <item-id>
+Item context: <description, constraints, failure modes, done condition>
+test-scope: targeted
+test-depth: <feature|bugfix|refactor|test-only>
+Do the work. Run only the tests targeted to your change. Create/push a branch work/<item-id>.
+If you hit a design decision you cannot make alone, do NOT block: return
+  escalation: { category: "<architecture|scope|interface|dependency>", question: "..." } and stop.
+Return the result schema: { item_id, branch, tests_green, has_schema_change, summary,
+  findings, test_decisions }. test_decisions MUST list what you tested and every mock you
+  chose, with rationale (the verify adversary challenges these). has_schema_change=true if
+  you changed a shared interface (add a one-line schema_change note in summary).
+```
+Verify adversary (stage 2, strongest judging tier):
+```
+You are the verify adversary. You receive one implementer's returned test_decisions.
+Challenge every mock: does this test hit ground source truth, or does it mock away the
+thing under test? For each challenged mock, demand a real test or a proof of inability.
+Return: { item_id, verdict: "clean"|"unresolved"|"proven-inability",
+  challenged_mocks: [ { mock, why_inadequate } ],
+  prerequisite_filed: "<what the human must provide>" (only if proven-inability) }
+"It is too hard" and "it would take too long" are NOT proven-inability.
+```
+Reviewer/sweeper (parallel fan-out, returns the findings schema):
+```
+You are a one-shot <agent-type> reviewer working exactly one item.
+Item: <item-id>  Item context: <...>
+Report ONLY real findings. Do not fix anything. One terse sentence per finding.
+Return: { findings: [ { file, location, severity, category, description } ] }.
+```
+
+### Telemetry (carried shape)
+Append one per-swarm summary at completion and per-item start/complete events
+throughout. Before writing, verify dispatch_start count equals dispatch_complete
+count (no orphans) and that verify metrics are derived from returned verdicts, not
+self-reported prose. If unresolved verdicts remain, the swarm MUST NOT close: that
+is a completion blocker, not a rounding error.
+
+## Bound
+
+- id: **MECH** (parallel-execution mechanism)
+  requires: a way to run N typed agents concurrently in one wave, each given a
+  composed prompt and each returning a value validated against a supplied JSON
+  schema (null on validation failure), with a barrier fan-out for independent
+  agents and a per-item pipeline (no inter-item barrier) for implement -> verify,
+  plus optional per-agent filesystem isolation (a git worktree). Concurrency is
+  capped. The mechanism cannot run shell/tracker/git itself: all work-graph and
+  git operations happen in the main loop before (input args) and after (the return).
+
+- id: **TRACK** (work-tracker)
+  requires: a persistent work-graph the orchestrator mutates authoritatively:
+  query the ready set, show an item, claim, post progress, close done/fail/cancel,
+  defer, open and approve human gates, add dependency edges, show the dependency
+  tree. Claims must be authoritative and visible across concurrent orchestrators.
+
+- id: **VCS** (version-control substrate)
+  requires: version control with a branch-and-pull-request merge queue. The main
+  loop creates work branches, opens and merges pull requests through a queue that
+  serializes on the main line, and deletes merged branches; orchestrators never
+  push to the main line directly. Failing loud here is the point: a target without
+  branch-and-merge-queue version control cannot run the merge step (loop k) or the
+  multi-session coordination step.
+
+- id: **DESIGN-REVIEW** (adversarial design review)
+  requires: a multi-pass adversarial design-review capability for architecture
+  escalations. The main loop routes any architecture escalation (loop h) and an
+  escalating red-baseline fix into it; it rules on the correct approach or, when it
+  needs human input, names what is missing so the orchestrator can open a human gate.
+
+- id: **REGISTRY** (agent registry)
+  requires: a location listing the available typed agent specs (their type names,
+  model tiers, and prompts) so the orchestrator can compose the right agent call
+  per item type, with a documented fallback set when the project defines none.
+
+- id: **COORD** (coordination substrate, OPTIONAL)
+  requires: an out-of-band bus that can carry cross-session human-visible gate and
+  status notices. Optional: absence does not block the method (gates ride on TRACK).
+  Never on the dispatch path.
+
+## Checks
+- (behavioral) Method independence: read the Carried method with MECH/TRACK/COORD
+  left as abstract names. It is still a complete orchestration procedure: a reader
+  could execute the loop, the three verify patterns, and the integration gate
+  without knowing which concrete tool fills any bind.
+- (mechanical) Mechanism is a bind, not baked in: no concrete execution-tool name
+  (the specific workflow tool, worktree command, tracker CLI, or campfire) appears
+  in the Carried method text. Concrete tool names appear only in the compiled
+  SKILL.md after the binds resolve, never in the carried method.
+- (behavioral) Honest bind failure: compiling against a target that has no
+  parallel-execution mechanism stops at MECH resolution and names the missing
+  dependency. It does not silently degrade to sequential execution or drop verify.
+- (behavioral) Verify gate is unconditional and non-self-waivable: every wave with
+  implementer items runs implement -> verify; a wave cannot merge while any verdict
+  is "unresolved"; the orchestrator cannot waive its own oversight (only a human
+  gate waives).
+- (behavioral) Loop until dry: the parent closes only when the ready set is empty
+  AND no finding is unaddressed AND no verdict is "unresolved" AND the synchronous
+  final gate is green.
+- (mechanical) Authority boundary: the method states that all close/claim/fail/
+  gate/dependency mutations are the orchestrator's; agents return data and never
+  close items.
+- (behavioral) Red baseline halts: a red baseline stops dispatch until fixed; the
+  method forbids filing-and-continuing, skipping the test, or closing as "already
+  failing".

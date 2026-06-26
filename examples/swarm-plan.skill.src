@@ -1,0 +1,360 @@
+# swarm-plan.skill.src
+
+## Intent
+Decompose a design into a dispatch-ready work item tree of typed agents, using the
+swarm decomposition protocol: a rigor-attenuation pass followed by five refinement
+passes, sized to the cost of getting the work wrong.
+
+## Carried
+
+Everything that defines a correct decomposition is inlined below: the
+decompose-by-outcome rule, Pass 0 rigor attenuation, the five passes with their
+instructions and quality gates, the compaction / self-contained-item test, and the
+canonical agent-type vocabulary the passes annotate against. This is the method,
+lifted whole. The only things resolved locally are the binds in the next section:
+which tracker creates items and wires dependencies, which agent specs actually
+exist on this machine, and how this project routes a work domain to a specialist.
+
+### The governing rule: decompose by outcome, never by implementation step
+
+Each item is an outcome with a verifiable done condition, not an implementation
+step. The done condition is a state of the world someone can check: what the user
+sees, what the system does, what query returns what result. "Code exists" is never
+a done condition.
+
+Bad decomposition (implementation-scoped, forbidden):
+- "Build the filtering layer"
+- "Build the prompt construction"
+- "Wire them together"
+
+Good decomposition (outcome-scoped, required):
+- "Baron's queue shows 5 relevant items when he opens the webapp"
+- "Physical tasks don't appear in the agent work queue"
+- "Staff manager mutations only reference open items"
+
+Every item must be three things at once:
+1. Outcome-defined: the done condition is a verifiable end state, not "code exists."
+2. One-session-sized: completable in a single context window before compaction.
+3. Self-contained: the description carries everything an agent with zero
+   conversation history needs to execute it. Reasoning (why this approach),
+   constraints (what NOT to do), failure modes already explored, and the exact
+   done condition.
+
+### Pass 0: Rigor Attenuation (always produces a dispatchable DAG)
+
+Run this FIRST. Its job is to scale the DAG's rigor to the cost of getting the
+work wrong, not to its apparent size, and not to refuse to plan. Pass 0 always
+emits a dispatchable DAG. Rigor is the dial, the gate. A trivial task becomes a
+single-implementer leaf; a heavy task becomes the full-rigor tree. The dispatcher
+trusts whatever Pass 0 sized and does not re-litigate it at execution time.
+
+Inputs: the user request, related work items, and a quick repo scan (file paths,
+recent commits). Ask the user nothing unless genuinely ambiguous. Target: 30
+seconds.
+
+Compute three signals and one modifier. Take the max of the three signals, add the
+modifier, clamp to the four tiers.
+
+1. Blast radius (how much surface the work touches):
+   - 1 file in 1 package: trivial
+   - 2 to 5 files in 1 to 2 packages: small
+   - 6+ files OR crossing core package boundaries: standard
+   - more than 20 files OR spanning more than 3 packages: heavy
+
+2. Reversibility cost (what it costs if the change is wrong):
+   - Additive-only (add command X, add doc Y, new file Z): trivial
+   - In-place mutation with no external contract (change behavior of Y): small
+   - Interface, config, or CLI contract change: standard
+   - Schema migration, public API change, on-disk format change: heavy
+
+3. Adversarial surface (floors, not ceilings):
+   - None of the below: trivial
+   - Work-tracker state, campfire protocol, signing code, test-gate enforcement:
+     standard floor
+   - Auth, payment, secret handling, user data, anything security-labeled: heavy floor
+
+4. Coverage modifier: if prod-code paths change and the touched path has no
+   corresponding test coverage, add +1 tier. Applies at most once. Trivial can only
+   bump to small.
+
+Rigor tier = clamp(max(blast, reversibility, adversarial) + coverage_modifier,
+trivial..heavy).
+
+The tier controls how deep later passes go. The DAG is always dispatchable:
+
+| Tier | Resulting DAG shape | Passes that apply |
+|---|---|---|
+| trivial | one implementer leaf; no review, no veracity, no sweeps | Pass 1, Pass 5 |
+| small | implementer then reviewer (single review) | Pass 1, Pass 2, Pass 5 |
+| standard | implementer then reviewer then veracity-adversary | Pass 1 through 3.5, Pass 5 |
+| heavy | full rigor: implementers, reviewers, veracity, five sweeps, optional upstream design campfire | All passes |
+
+Annotate the plan root with `rigor: <tier>`. Report the tier and the dominating
+signal so the user can sanity-check ("blast=small, coverage bump, rigor: standard").
+Then proceed to Pass 1 regardless. The user may override with an explicit rigor
+tier; frequent overrides mean the signal set is mis-calibrated.
+
+Worked examples:
+- "add a new slash command in the CLI": blast=small, reversibility=trivial,
+  adversarial=trivial, tier small. DAG = implementer + reviewer.
+- "change the campfire signing envelope format": blast=small, reversibility=heavy,
+  adversarial=heavy, tier heavy. Full rigor.
+- "add a README paragraph": all trivial, tier trivial. One implementer.
+- "refactor 14 detectors to share a base class": blast=standard, reversibility=small,
+  adversarial=trivial, tier standard. Implementer + reviewer + veracity.
+- "add a Polar checkout flow": blast=standard, reversibility=standard,
+  adversarial=heavy, tier heavy. Full rigor.
+
+### Canonical agent-type vocabulary
+
+The passes annotate every item with one of these exact `agent-type` values.
+Fragmented vocabulary (face vs face-card, e2e vs e2e-verification, veracity vs
+veracity-adversary) breaks telemetry grouping, so use these spellings verbatim.
+Which of these specs actually exist on the target is a BIND (see Bound). The
+vocabulary itself is carried because the passes reference it.
+
+| Canonical type | Use |
+|---|---|
+| implementer | Writes code, tests, commits |
+| reviewer | Reviews implementation items |
+| sweeper-security | Security-focused sweep |
+| sweeper-bugs | Bug-focused sweep |
+| sweeper-deadcode | Dead code sweep |
+| sweeper-antipatterns | Antipattern sweep |
+| sweeper-testcoverage | Test coverage sweep |
+| veracity-adversary | Mock / test fidelity challenge |
+| e2e-verification | End-to-end integration verification |
+
+Project-specific types are allowed but must be hyphen-case.
+
+### Pass 1: Outcome Mapping
+
+Goal: the first-draft tree with correct outcomes and the lifecycle steps the tier
+admits (implement, review, sweep, verify) encoded as typed items.
+
+Apply only the construction steps your Pass 0 tier admits, per the tier table:
+reviewers at rigor >= small, veracity-adversary at rigor >= standard, the five
+sweeps and per-item security reviews only at heavy.
+
+1. Read the design in full. Identify every distinct outcome (what the user sees,
+   what the system does, what queries return what results).
+2. Create one implementation item per outcome. The title states the outcome, the
+   action.
+3. Write each item description with: the done condition (a verifiable state of the
+   world), the design reference, spec references (schemas, APIs, existing code the
+   implementer needs), constraints (what NOT to do, scope boundaries), the agent
+   type (`implementer`), and the artifact type (`code`, `spec`, `ops`, or `design`,
+   classified by the primary artifact the done condition tests; default to `code`
+   when ambiguous).
+4. At rigor >= small, for each implementation item, create review child items, scaled
+   by marginal yield. One reviewer is the minimum (a combined correctness + integration review).
+   Two reviewers when the item touches a shared interface, security-adjacent code,
+   or has high cascade risk (split into correctness and integration). Three or more
+   only for unusual risk (novel architecture, cross-system integration, regulatory
+   surfaces), justified in the description. Each review item depends on its
+   implementation item.
+5. At rigor >= standard, for each implementation wave, create a veracity audit item
+   (`agent-type: veracity-adversary`). It runs in the same wave as the implementers,
+   reading their tests as they are written. The wave cannot merge until veracity
+   findings are resolved. This is concurrent adversarial pressure, a post-hoc
+   review.
+6. At heavy, for implementation items touching security-critical surfaces (authentication,
+   authorization, crypto, invite/token flows, concurrent state mutation), create a
+   security review child (`agent-type: sweeper-security`, opus) targeting TOCTOU
+   races, auth bypass, data races under locks, audit-trail gaps. One per security
+   surface, per implementation item.
+7. At heavy, at the parent level, create the five sweep items, each depending on all
+   implementation items completing: security (`sweeper-security`), bugs
+   (`sweeper-bugs`), dead code (`sweeper-deadcode`), antipatterns
+   (`sweeper-antipatterns`), test coverage (`sweeper-testcoverage`).
+8. Create an end-to-end verification item only when the design spans 3+
+   independently-built components that must work together, or the integration
+   behavior cannot be verified by composing individual tests, or the design
+   specifies user-facing workflows crossing service boundaries. When created, it
+   depends on all implementation items.
+9. Wire dependencies: sequential outcomes block each other; all children block the
+   parent.
+10. Status discipline: after wiring, only the parent and truly ready leaf items
+    should appear in the tracker's ready queue. Do not pre-open blocked items; let
+    the tracker auto-block them when deps are added. If more than ~5 items appear
+    per parallel wave, the deps are wired wrong.
+
+Quality gate: every item answers both "what does done look like?" and "who does
+this work?" (agent type).
+
+### Pass 2: Context Isolation and Parallelism
+
+Goal: every item completable in one session, parallelism maximized.
+
+1. Apply the compaction test to every item: if an agent reads this item cold, with
+   zero conversation history, can it execute to completion? If not, the item is too
+   large or missing context.
+2. Split items that are too large. Signals: requires reading more than ~10 files to
+   understand scope; has multiple independent done conditions (split one per
+   condition); spans multiple unrelated subsystems; description exceeds ~500 words.
+3. Make every description self-contained: file paths to read and modify, interface
+   contracts (signatures, API shapes, schemas), and a mandatory test-depth
+   annotation (one of `feature`, `bugfix`, `refactor`, `test-only`; `feature`
+   requires integration tests, `bugfix` requires regression tests through the real
+   pipeline, `refactor` requires existing integration tests pass, `test-only` means
+   the item only adds or changes tests and those new tests exercise real, unmocked
+   code paths). Never leave test-depth blank or write "unit tests."
+4. Maximize parallelism: find items that are sequentially ordered but actually
+   independent; factor out shared prerequisites as their own items.
+5. Annotate each item with an estimated model tier (haiku/sonnet/opus).
+
+Quality gate: no item requires another item's implementation details, only its
+interface contract.
+
+### Pass 3: Standards Enforcement (applies at rigor >= standard)
+
+At trivial and small, skip. The one- or two-leaf DAG takes its standards from the
+implementer and reviewer specs directly.
+
+1. TDD: every implementation item specifies the test-first sequence (write the
+   failing test that defines the done condition, implement to pass, run scoped
+   verification green). If the done condition is not expressible as a test, flag it.
+2. SRP: each item produces one coherent change. If a description says "and also,"
+   it is two items.
+3. SOLID: descriptions must not prescribe implementations that violate
+   open/closed, Liskov, interface segregation, or dependency inversion.
+4. YAGNI: strip anything anticipating future requirements. If it is in the
+   design, it is in the item.
+5. Project conventions: reference existing patterns (naming, file organization,
+   error handling, logging).
+6. Enforcement mechanisms bundle their proof. Any item implementing a gate, guard,
+   validator, or quality floor MUST include both the test proving the gate rejects
+   bad input and the test proving it passes good input, written by the same
+   implementer in the same dispatch. Do not split enforcement implementation from
+   enforcement testing.
+
+Quality gate: read each item as an agent would. Does it tell you to write a test
+first, and to avoid over-engineering?
+
+### Pass 3.5: Veracity Challenge (applies at rigor >= standard; opus)
+
+At trivial and small, skip (no veracity-adversary leaf to feed). At heavy,
+mandatory.
+
+1. For every implementation item, ask: what would a sonnet-tier implementer mock to
+   close this fast? The answer is almost always the external integration, the
+   database, the API call, the service boundary.
+2. Rewrite the done condition so mocking is impossible. "test hits Polar sandbox,
+   sends real payment, receives real webhook, verifies subscription state in
+   database," "test covers checkout flow."
+3. Identify what real testing needs (credentials, sandbox accounts, running
+   services). Create prerequisite items for anything a human must provision before
+   the implementation wave.
+4. Where real testing needs something the agent cannot provision, the prerequisite
+   item is itself the deliverable and goes to the human first.
+5. If a done condition cannot be expressed as a ground-source-truth test, flag it.
+   Untestable features do not ship.
+
+Quality gate: for every implementation item, the done condition specifies what the
+test must actually hit. No done condition is satisfiable by mocking the primary
+interface under test.
+
+### Pass 4: System Validation (opus; the most valuable pass, never downgrade)
+
+1. Coverage check: walk every design requirement, identify which item(s) deliver
+   it; if a requirement has no item, create it.
+2. Hallucination check: walk every item; if it serves no design requirement,
+   remove or flag it.
+3. Interface consistency: producers and consumers of an interface agree on the
+   contract.
+4. Dependency integrity: no circular, missing, or phantom deps.
+5. Integration surface: every point where independently-built items integrate has a
+   review or verification item covering it.
+6. Mock blast radius: for each item changing an interface, enumerate every test file
+   that mocks it; record as a `mock-scope` annotation so implementers update those
+   mocks alongside their source.
+7. Agent-type validation: each item's assigned agent type matches the work.
+
+Quality gate: every design requirement maps to at least one item; every item maps
+to at least one design requirement; every item has the correct agent type.
+
+### Pass 5: Dispatch Readiness
+
+1. Cold-start simulation: for each item, assume the agent has no context. Can it
+   complete from the description alone?
+2. Agent-type matching: introspect the local agent registry (BIND). For each item's
+   agent type, verify a matching spec exists. If not, map to the closest available
+   agent, fall back to the standard set, or flag for the user when no reasonable
+   match exists.
+3. Model tier assignment: implementer = sonnet (opus for complex architecture),
+   reviewer = sonnet, sweeper = sonnet, designer/veracity-planning = opus.
+4. Failure cascade analysis: items whose failure blocks the most downstream work are
+   high-priority; consider a higher tier.
+5. Dispatch summary: each item annotated with agent type, model tier, and key
+   dependencies.
+
+Quality gate: for every item, the orchestrator knows what agent to spawn, what
+model to use, and what the item depends on.
+
+### Presentation discipline
+
+After the passes, present a top-level summary only. Do not dump the full DAG.
+
+```
+Parent: <item-id>: <title>
+Children:
+  <item-id>: <title> [agent-type, model-tier]
+  ...
+
+Total items: N
+By agent type: implementer xN, reviewer xN, sweeper xN
+Critical path: N items (~N waves)
+Full DAG: <tracker dep-tree command> <parent-id>
+```
+
+Then STOP. The user reviews and approves before any dispatch. If the user points at
+a pass as needing rework, re-run from that pass forward (structural to Pass 1,
+sizing to Pass 2, standards to Pass 3, coverage to Pass 4, dispatch to Pass 5).
+
+## Bound
+
+bind:tracker
+  requires: a work-item tracker on this machine that can create items, create child
+  items under a parent, add a dependency edge between two items, show the ready
+  queue, and render a dependency tree. Resolve to its concrete create / child /
+  dep-add / ready / dep-tree command forms. Used by every pass that creates or
+  wires items, and by the presentation summary.
+
+bind:agent-registry
+  requires: the local directory of typed-agent specs (where this harness keeps its
+  per-project agent definitions). Pass 5 introspects it to confirm a spec exists for
+  each `agent-type` an item names. If the project has no local registry, resolve to
+  the machine's standard agent set as the fallback source.
+
+bind:routing-table
+  requires: this project's domain-to-agent routing map (which work domain dispatches
+  to which specialist agent type). Used in Pass 1 and Pass 4 to assign and validate
+  each item's `agent-type`. Resolve to the project's documented routing (typically
+  in CLAUDE.md) or, absent one, to the canonical vocabulary above mapped by work
+  kind (implementation to implementer, review to reviewer, sweep to sweeper-*, mock
+  challenge to veracity-adversary).
+
+## Checks
+- (mechanical) Every item in the produced tree has an `agent-type` annotation, and
+  every value is one of the canonical vocabulary spellings (or a hyphen-case
+  project type). No bare words, snake_case, or fragmented spellings.
+- (mechanical) Every `agent-type` named in the tree has a resolvable spec in the
+  bound agent registry (or the documented fallback). Pass 5 fails loud otherwise.
+- (mechanical) The plan root carries a `rigor: <tier>` annotation from Pass 0, one
+  of trivial/small/standard/heavy, and the tree shape matches the tier table
+  (trivial = one implementer leaf; small adds a reviewer; standard adds veracity;
+  heavy adds the five sweeps).
+- (mechanical) After wiring, the tracker's ready queue shows only the parent and
+  genuinely actionable leaves, not the whole tree (≤ ~5 per parallel wave).
+- (behavioral) Every item is an outcome with a verifiable done condition (a state
+  of the world), an implementation step. No item title is a build-X action and no
+  done condition is "code exists."
+- (behavioral) Every item passes the compaction test: an agent with zero
+  conversation history can execute it from the description alone (paths, contracts,
+  constraints, done condition, test-depth all present).
+- (behavioral) Rigor is attenuated to the cost of getting the work wrong: the
+  reported tier follows from the three signals + coverage modifier, and a trivial
+  request did not produce a full-rigor tree (nor a heavy request a bare leaf).
+- (behavioral) At rigor >= standard, every implementation item's done condition
+  specifies what the test must actually hit; none is satisfiable by mocking the
+  primary interface under test.

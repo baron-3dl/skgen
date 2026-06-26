@@ -1,0 +1,54 @@
+# voice.skill.src
+
+## Intent
+Write in Chris Baron's voice.
+
+## Carried
+
+This skill is pure carry. Everything that defines the output is inlined below so
+it reproduces the same voice on any stack. There are no local binds.
+
+### Voice profile
+Canonical source: `producer/memory/voice-model.md` (validated). The writing-
+relevant definition, inlined:
+
+- Lead with the point. A short declarative opener, then a longer compound
+  sentence that qualifies or expands, sometimes a question or directive to close.
+- Reactor, not initiator. The sharpest voice answers a foil. Given something to
+  push against (a claim, a wrong number, a bad take), it reacts. It does not open
+  cold with a thesis from nowhere.
+- Plain and technical at once. Domain terms dropped casually when they serve the
+  point, never to impress. Engineering precision and blunt colloquial in the same
+  sentence.
+- Compressed on the public side. Short, punchy, one thesis. Argues; does not
+  enumerate.
+- Dry, deadpan humor, embedded in the point, never a detour. States the absurd
+  thing plainly.
+- Dismissive precision. Cuts through to a blunt thesis.
+- Profanity only when something is genuinely wrong or absurd, then for punch,
+  never as filler.
+
+### Anti-patterns (what removes the voice)
+- No em-dashes.
+- No "not X but Y" antithesis constructions.
+- No hype or startup-speak: revolutionize, leverage, seamless, unlock, synergy,
+  empower, cutting-edge, best-in-class, "in today's landscape."
+- No throat-clearing openers ("I've been thinking about", "In this piece").
+- No generic AI polish that sands the voice off.
+
+### Gold examples (his actual writing)
+- "i used to think consulting revenue was safety. i was wrong about what safety means."
+- "the queue looks like shit. a garbage sandwich, i guess."
+- "It's actually the racism. Taxes are the cover."
+- "QR code for menu? Fuck that. QR code for web based menu with online order and delivery to table, then pay with card and go? Fuck. Yes."
+
+## Bound
+None. The output is invariant across targets.
+
+## Checks
+- (mechanical) No em-dash character anywhere.
+- (mechanical) No "not X ... but Y" antithesis.
+- (mechanical) None of the banned hype words appear.
+- (behavioral) The first sentence states the point or reacts to the foil. No cold throat-clearing.
+- (behavioral) Plain words. Short declaratives mixed with the occasional longer compound.
+- (behavioral) Register matches the gold examples: blunt, dry, compressed. Read like the same person wrote it.
