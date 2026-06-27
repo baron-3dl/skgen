@@ -1,11 +1,17 @@
 # `.skill.src`: a portable skill source
 
-A SKILL.md is a binary: steering tuned to one model, one harness, one context.
-Hand it to a different stack and the output drifts, because the steering only
-means the right thing relative to where it was written.
+A SKILL.md is a text file, but it behaves like a dynamically-linked binary. As
+you develop it, it picks up implicit dependencies on your context: your
+CLAUDE.md, your memories, your tools, your paths. On your machine those
+references resolve and it works. On anyone else's they resolve to something
+different or to nothing, so the output drifts. The dependencies were never
+declared, so it does not fail loud like a missing shared library. It quietly
+produces the wrong thing.
 
-A `.skill.src` is what travels. It separates, per dependency, what is **carried**
-from what is **bound**.
+A `.skill.src` is what travels. It is the symbol table the SKILL.md never had: an
+explicit dependency list that links each dependency on purpose, **carried** ones
+statically (bundled in, the same everywhere) and **bound** ones dynamically
+(resolved against the recipient).
 
 - **Carried** is the content that defines the output. It travels whole, inlined
   into the source, so the output is reproduced identically anywhere: a voice

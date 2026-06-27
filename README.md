@@ -1,14 +1,20 @@
 # skgen: skills as source, compiled in place
 
-A SKILL.md is a binary. It is steering tuned to one model, one harness, and one
-local context. Hand it to a different setup and the output drifts, because the
-steering only means the right thing where it was written.
+A SKILL.md is a text file, but it behaves like a dynamically-linked binary.
+Developing it embeds implicit dependencies on your context: your CLAUDE.md, your
+memories, your tools, your paths. On your machine those references resolve and it
+works. On anyone else's they resolve differently or not at all, so the output
+drifts. And because the dependencies were never declared, it does not fail loud
+like a missing shared library. It quietly produces the wrong thing.
 
-skgen distributes skills as source instead. A `.skill.src` carries what defines
-the output and declares what is local. You compile it against your own setup and
-get a SKILL.md that works for you. The compiler is Claude Code itself. No
-runtime, no inference endpoint, no API keys, no dependencies. The cost is
-whatever your Claude Code already bills.
+skgen distributes skills as source instead. A `.skill.src` is the symbol table
+the SKILL.md never had. It makes the dependencies explicit and links each one on
+purpose: it carries what defines the output (linked statically, the same
+everywhere) and binds what is local (linked dynamically, resolved against the
+recipient). You compile it against your own setup and get a SKILL.md that works
+for you. The compiler is Claude Code itself. No runtime, no inference endpoint,
+no API keys, no dependencies. The cost is whatever your Claude Code already
+bills.
 
 ## The model
 
