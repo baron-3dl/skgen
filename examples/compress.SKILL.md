@@ -6,7 +6,7 @@ argument-hint: [scope description or "full" for entire conversation]
 
 Produce a **Nyquist-sampled compression** of the current conversation (or the scope in $ARGUMENTS). The output must let a cold agent with zero conversation history make identical decisions to one who sat through the full session.
 
-Compiled for this target: model Claude Code (Opus 4.8), harness Workflow/Task tools. Binds resolved locally: tracker = `rd` (`rd show <id>`, item IDs like `skgen-3f2`); provenance marks = `B` for Baron (the human principal), `A` for the agent, `B→A` for Baron relaying agent-originated content; source-check tools = `git diff <hash>`, `rd show <id>`, `CLAUDE.md`.
+Compiled for this target: model Claude Code (Opus 4.8), harness Workflow/Task tools. Binds resolved locally: tracker = `rd` (`rd show <id>`, item IDs like `skillc-3f2`); provenance marks = `B` for Baron (the human principal), `A` for the agent, `B→A` for Baron relaying agent-originated content; source-check tools = `git diff <hash>`, `rd show <id>`, `CLAUDE.md`.
 
 **Calibration rule:** If deleting a line would not change a resuming agent's behavior, it is over-sampled. If a resuming agent would re-explore a rejected path or violate a stated constraint, it is under-sampled. Hit the boundary exactly.
 

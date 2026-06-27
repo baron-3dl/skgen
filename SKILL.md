@@ -1,9 +1,9 @@
 ---
-name: skgen
+name: skillc
 description: Compile and author portable skill sources. Use when the user wants to compile a .skill.src into a SKILL.md for this machine, or turn a skill they made into a shareable .skill.src.
 ---
 
-skgen treats a SKILL.md as a dynamically-linked binary and ships skills as source
+skillc treats a SKILL.md as a dynamically-linked binary and ships skills as source
 (`.skill.src`) that compiles in place. Read `FORMAT.md` for the source format and
 the carry/bind model before either operation.
 

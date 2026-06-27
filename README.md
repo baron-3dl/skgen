@@ -1,8 +1,8 @@
-# skgen
+# skillc
 
 A SKILL.md behaves like a dynamically-linked binary. Writing one links it
 invisibly against your context: your CLAUDE.md, memory, tools, paths. So it
-drifts or breaks on anyone else's machine. skgen ships skills as source instead.
+drifts or breaks on anyone else's machine. skillc ships skills as source instead.
 A `.skill.src` declares those dependencies and decides each one: carry it so it
 is the same everywhere, or bind it so it resolves locally. You compile the source
 against your own machine, in Claude Code. The model and the format are in
@@ -10,9 +10,9 @@ against your own machine, in Claude Code. The model and the format are in
 
 ## Use it
 
-skgen is itself a skill. Install it so Claude can run it:
+skillc is itself a skill. Install it so Claude can run it:
 
-    git clone https://github.com/baron-3dl/skgen ~/.claude/skills/skgen
+    git clone https://github.com/baron-3dl/skillc ~/.claude/skills/skillc
 
 **Compile a source** someone shared, to get a SKILL.md for your machine. In Claude Code:
 
@@ -31,7 +31,7 @@ Claude inlines what defines the output and declares what is local. Share the
 
 ## Layout
 
-- `SKILL.md`: how Claude operates skgen.
+- `SKILL.md`: how Claude operates skillc.
 - `FORMAT.md`: the `.skill.src` format and the carry/bind model.
 - `seed/`: the builder and compiler procedures.
 - `examples/`: five worked sources, each with its compiled `.SKILL.md`.
