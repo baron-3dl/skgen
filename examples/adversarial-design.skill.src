@@ -188,19 +188,25 @@ synthesis under conflicting constraints is the hardest reasoning in the process.
 ## Bound
 
 - id: deliberation-substrate
-  requires: a mechanism that hosts persistent, multi-party deliberation and keeps a
-  durable record that can be read back in full, move by move, attributed to each
-  disposition. Each move (propose, challenge, concede, convergence, rule, synthesize)
-  must be recordable and retrievable later. The author's local resolution is the
-  campfire `design-deliberation` convention; any equivalent durable, readable,
-  attributed log satisfies the requirement.
+  requires: a way to host a multi-agent adversarial deliberation, which is two
+  coupled capabilities the target must supply together.
 
-- id: agent-dispatch
-  requires: a mechanism to run several agent personas, one per disposition plus one
-  architect, where each persona holds its own context (so it can carry its attacks or
-  proposals across rounds) and the dispositions run independently of each other. The
-  author's local resolution is parallel background agents driven by a harness dispatch
-  tool; any equivalent multi-agent execution satisfies the requirement.
+  (a) Independent agents. A mechanism that runs several agents at once, one per
+  disposition plus one architect, where each agent holds its OWN divergent context
+  that the others cannot see and exchanges moves across rounds. Independence is
+  load-bearing: the adversary must attack a proposal it did not write, reasoning
+  from context the creative and the rest never had, so the attack is real and not a
+  rehearsal of the proposer's own doubts. If the target has no way to run
+  independent agents, the compiler FAILS LOUD and names the gap. There is no
+  single-context fallback. One agent playing all four roles drifts toward agreeing
+  with itself and stops being adversarial, which deletes the only property the
+  method exists to produce.
+
+  (b) A durable record. A log of every move (propose, challenge, concede,
+  convergence, rule, synthesize) where each entry is timestamped and attributed to
+  the disposition that made it, written so the whole sequence reads back in full and
+  the path to the ruling reconstructs move by move. A shared file that each agent
+  appends its own move to satisfies this.
 
 ## Checks
 - (behavioral) All four dispositions are represented and each is genuinely adversarial:

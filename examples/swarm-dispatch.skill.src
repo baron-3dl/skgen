@@ -13,9 +13,8 @@ parallel agents. The method is inlined in full below so it reproduces identicall
 on any stack. It is written against abstract capabilities, each declared in
 Bound: a **parallel-execution mechanism** (call it MECH), a **work-tracker** (call
 it TRACK), a **version-control substrate** (call it VCS), an **adversarial
-design-review** capability (call it DESIGN-REVIEW), an **agent registry** (call it
-REGISTRY), and an optional **coordination-substrate** (call it COORD). The method
-names only those abstractions. The concrete tools that fill them live in Bound and
+design-review** capability (call it DESIGN-REVIEW), and an **agent registry** (call
+it REGISTRY). The method names only those abstractions. The concrete tools that fill them live in Bound and
 are resolved at compile. With the bind names left abstract the method below is
 still a complete, runnable orchestration procedure: that is the test it must pass.
 
@@ -50,10 +49,11 @@ exist. If an item needs a type that does not exist, escalate to the user.
   wave's items touch disjoint files (the plan's merge-face grouping guarantees
   this, not any runtime coordination).
 
-In both: one agent per item, and no COORD in the dispatch path. Coordination that
-once needed a message bus now rides the structured returns from MECH. The only
-COORD use that remains is optional and out-of-band (cross-session human-visible
-gate/status notices); it is never required and never on the dispatch path.
+In both: one agent per item, and no separate coordination bus in the dispatch path.
+Coordination rides TRACK and the structured returns from MECH: claims are
+authoritative and visible cross-session on TRACK, and per-wave results cross back as
+schema-validated MECH returns. Cross-session human-visible gate and status notices
+ride TRACK's gate queue.
 
 ### The result schema (what every implementer agent returns)
 Each implementer agent call must return an object validating against this schema.
@@ -259,8 +259,8 @@ orchestrator's ready set) and the VCS merge queue (orchestrators serialize on
 main; never push to main directly). A schema change another orchestrator merges
 surfaces as a baseline failure in this orchestrator's loop and is handled by Red
 Baseline Resolution. Human-visible cross-session gates ride on the tracker's gate
-queue. COORD, if present, may carry an optional live human feed but is not the
-coordination substrate for assignment or merge.
+queue. There is no separate coordination substrate: TRACK carries assignment and
+gates, and MECH returns carry per-wave results.
 
 ### Worker replacement
 If an agent produces poor output (shallow analysis, missed constraints),
@@ -344,18 +344,13 @@ is a completion blocker, not a rounding error.
   model tiers, and prompts) so the orchestrator can compose the right agent call
   per item type, with a documented fallback set when the project defines none.
 
-- id: **COORD** (coordination substrate, OPTIONAL)
-  requires: an out-of-band bus that can carry cross-session human-visible gate and
-  status notices. Optional: absence does not block the method (gates ride on TRACK).
-  Never on the dispatch path.
-
 ## Checks
-- (behavioral) Method independence: read the Carried method with MECH/TRACK/COORD
+- (behavioral) Method independence: read the Carried method with MECH/TRACK/VCS
   left as abstract names. It is still a complete orchestration procedure: a reader
   could execute the loop, the three verify patterns, and the integration gate
   without knowing which concrete tool fills any bind.
 - (mechanical) Mechanism is a bind, not baked in: no concrete execution-tool name
-  (the specific workflow tool, worktree command, tracker CLI, or campfire) appears
+  (the specific workflow tool, worktree command, or tracker CLI) appears
   in the Carried method text. Concrete tool names appear only in the compiled
   SKILL.md after the binds resolve, never in the carried method.
 - (behavioral) Honest bind failure: compiling against a target that has no

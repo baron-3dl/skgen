@@ -69,7 +69,7 @@ modifier, clamp to the four tiers.
 
 3. Adversarial surface (floors, not ceilings):
    - None of the below: trivial
-   - Work-tracker state, campfire protocol, signing code, test-gate enforcement:
+   - Work-tracker state, a coordination protocol's internals, signing code, test-gate enforcement:
      standard floor
    - Auth, payment, secret handling, user data, anything security-labeled: heavy floor
 
@@ -87,7 +87,7 @@ The tier controls how deep later passes go. The DAG is always dispatchable:
 | trivial | one implementer leaf; no review, no veracity, no sweeps | Pass 1, Pass 5 |
 | small | implementer then reviewer (single review) | Pass 1, Pass 2, Pass 5 |
 | standard | implementer then reviewer then veracity-adversary | Pass 1 through 3.5, Pass 5 |
-| heavy | full rigor: implementers, reviewers, veracity, five sweeps, optional upstream design campfire | All passes |
+| heavy | full rigor: implementers, reviewers, veracity, five sweeps, optional upstream adversarial design review | All passes |
 
 Annotate the plan root with `rigor: <tier>`. Report the tier and the dominating
 signal so the user can sanity-check ("blast=small, coverage bump, rigor: standard").
@@ -97,7 +97,7 @@ tier; frequent overrides mean the signal set is mis-calibrated.
 Worked examples:
 - "add a new slash command in the CLI": blast=small, reversibility=trivial,
   adversarial=trivial, tier small. DAG = implementer + reviewer.
-- "change the campfire signing envelope format": blast=small, reversibility=heavy,
+- "change a message signing envelope format": blast=small, reversibility=heavy,
   adversarial=heavy, tier heavy. Full rigor.
 - "add a README paragraph": all trivial, tier trivial. One implementer.
 - "refactor 14 detectors to share a base class": blast=standard, reversibility=small,

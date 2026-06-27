@@ -50,7 +50,7 @@ ambiguous. Compute three signals, take their max, add the modifier, clamp:
 - **Reversibility**: additive-only = trivial; in-place mutation, no external contract
   = small; interface/config/CLI contract change = standard; schema migration / public
   API / on-disk format = heavy.
-- **Adversarial surface** (floors): none = trivial; rd state / campfire / signing /
+- **Adversarial surface** (floors): none = trivial; rd state / a coordination protocol's internals / signing /
   test-gate = standard floor; auth / payment / secrets / user data / security-labeled
   = heavy floor.
 - **Coverage modifier**: prod code changes a path with no test coverage, +1 tier

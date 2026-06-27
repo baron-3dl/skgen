@@ -13,7 +13,7 @@ method needs resolve here as:
   self-contained JS script with `agent(prompt, { schema, model, effort, isolation })`,
   `parallel(thunks)` (barrier fan-out), and `pipeline(items, stage1, stage2)` (per-item,
   no inter-item barrier). `isolation: 'worktree'` gives an agent its own git worktree.
-  The script is pure JS: it CANNOT run `bash`, `rd`, `cf`, or `gh`. Concurrency cap ~16.
+  The script is pure JS: it CANNOT run `bash`, `rd`, or `gh`. Concurrency cap ~16.
 - **TRACK (work-tracker)** = **rd** (v0.10.0). All work-graph mutations run in the
   main loop only. The Workflow never calls rd.
 - **VCS (version control)** = **git** + the **`gh pr`** merge queue. The main loop
@@ -27,9 +27,10 @@ method needs resolve here as:
   defines none, so fall back to the standard set at
   `~/projects/resonant/docs/practice/agents/` (implementer, reviewer, veracity-adversary,
   sweeper-*). If an item needs a type with no spec, escalate to the user.
-- **COORD (coordination substrate)** = **cf** (present), OPTIONAL. Gates and
-  assignment ride on rd. Use cf only for an optional cross-session human feed,
-  never on the dispatch path.
+Coordination, gates, and assignment ride on **rd** and the Workflow tool's
+structured returns. There is no separate coordination substrate: claims are
+authoritative and visible cross-session on rd, and per-wave results cross back as
+schema-validated Workflow returns.
 
 **Input:** $ARGUMENTS. Parse `--strategy worktree|shared` (default worktree),
 `--workers N` (default 3, cap ~16), and a trailing parent item ID (else use the
@@ -217,8 +218,7 @@ Orchestrators coordinate through rd (claims are authoritative and visible
 cross-session, so a claimed item never appears in another's ready set) and the git
 PR merge queue (serialize on main; never push directly). A peer's schema change
 surfaces as a baseline failure here and goes through Red Baseline Resolution.
-Human-visible gates ride on `rd gates`. cf, if used, carries only an optional live
-feed.
+Human-visible gates ride on `rd gates`.
 
 ## Telemetry
 
