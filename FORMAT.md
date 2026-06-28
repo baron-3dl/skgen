@@ -44,16 +44,25 @@ the capability in plain words. Empty for a pure-reproduction skill.
 ### Checks
 What the compiled skill's output must satisfy: the author's corrections, kept as
 tests. Mechanical where you can see it by eye (no em-dashes, subject under 60).
-Behavioral where it takes judgment, verified by running the compiled skill and
-comparing its output to the carried examples.
+Behavioral where it takes judgment.
 
-## Compile is re-derivation, not substitution
+### Pins
+A handful of concrete (input, reference output) cases. The reference is what good
+output looks like for that input, the gold the compile converges to. Compiling
+runs the candidate skill on each input, scores the output against the reference
+and the checks, and tunes the steering until the cases pass. Without pins there
+is nothing to iterate toward, and the compile is just authoring.
 
-The compiler reads the carried definition, examples, and checks, resolves the
-binds against the local target, then **re-derives** the steering its own model
-and harness need to reproduce the carried behavior. It iterates its drafts
-against the carried checks and examples until the output matches. Different
-model, different steering, same output. It fails loud two ways: a bind it cannot
-resolve, or a target model that cannot reproduce the carried behavior to spec.
-Installing someone else's source and recompiling your own when the model moves
-are the same act.
+## Compiling tunes steering against the pins
+
+Compiling is a loop, and the loop is the point. The compiler resolves the binds
+against the local target, then starts from minimal steering and tunes it: run the
+candidate skill on the pinned inputs blind to the references, score how far each
+output varies from its reference and the checks, rewrite the steering to close
+the largest gaps, run it again. It repeats until the cases pass or it has shown
+this target cannot reach them. It emits the SKILL.md and a compile report
+recording the score at each round, from the weak seed to convergence, so the
+tuning is visible. Different model, different steering, same output. It fails loud
+two ways: a bind it cannot resolve, or a target that cannot reproduce the pinned
+outputs to spec. Installing someone else's source and recompiling your own when
+the model moves are the same act.

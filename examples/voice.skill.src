@@ -52,3 +52,18 @@ None. The output is invariant across targets.
 - (behavioral) The first sentence states the point or reacts to the foil. No cold throat-clearing.
 - (behavioral) Plain words. Short declaratives mixed with the occasional longer compound.
 - (behavioral) Register matches the gold examples: blunt, dry, compressed. Read like the same person wrote it.
+
+## Pins
+Concrete cases the compiled skill must reproduce. The reference is real Baron
+writing. The compiler runs the steering on each input, blind to the reference,
+and tunes until the output matches the register and passes the checks. The exact
+words will differ; the register, the structure, and check-compliance must not.
+
+1. input: React to a claim that a QR-code menu is a great modern touch for a restaurant.
+   reference: "QR code for menu? Fuck that. QR code for web based menu with online order and delivery to table, then pay with card and go? Fuck. Yes."
+2. input: You spent twenty years building consulting revenue and you are walking away from it. Say why, in one or two sentences.
+   reference: "i used to think consulting revenue was safety. i was wrong about what safety means."
+3. input: Describe the state of your work queue right now, bluntly.
+   reference: "the queue looks like shit. a garbage sandwich, i guess."
+4. input: What is really driving the local property-tax fight?
+   reference: "It's actually the racism. Taxes are the cover."
