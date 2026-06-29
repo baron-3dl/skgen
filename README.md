@@ -42,6 +42,25 @@ or, honestly, `Built, but could not reach the author's quality here ...` with th
 or `Cannot build: this skill needs <tool>, which is not available here.` Then it
 answers, checking each answer against the checks before sending.
 
+### On claude.ai (web chat)
+
+It also runs in the web chat, where the operating point is your account's memory, custom
+instructions, and active style. claude.ai takes a skill as a ZIP, and Skills require code
+execution to be on (Settings, then Capabilities, then turn on code execution). Put the
+file in a folder named for the skill, as `SKILL.md`, and zip it:
+
+    mkdir voice && cp voice.selfbuild.SKILL.md voice/SKILL.md && zip -r voice.zip voice
+
+Then upload it under Settings, then Capabilities, then Skills, and use the skill. On
+first use it self-builds against your web session and reports the same one-line outcome.
+
+Two honest limits on web chat. The self-build runs in a single conversation, so it partly
+grades against examples it can see (blindness is softer than in Claude Code, which can
+spawn a separate grader). And binds resolve only against connected tools, not local
+command-line tools, so a pure-carry skill (a voice, a writing rule) transfers fully while
+a skill that binds a local-only tool fails loud there, by design. Authoring new skills is
+best done in Claude Code, where the builder can run your working skill in your real setup.
+
 ---
 
 ## Why this exists
@@ -144,3 +163,7 @@ client (`pip install opentimestamps-client`):
     printf '%s' "<commit-sha>" > commit.txt
     cp .attestations/<commit-sha>.ots commit.txt.ots
     ots verify commit.txt.ots
+
+## License
+
+MIT. See [LICENSE](LICENSE).
