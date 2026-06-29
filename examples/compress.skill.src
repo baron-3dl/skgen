@@ -6,10 +6,10 @@ agent can pick up the work and miss nothing load-bearing.
 
 ## Carried
 
-This skill is pure carry. The definition of a correct compression is inlined
-below, so the same compression behavior reproduces on any stack. There are no
-local binds: a transcript is self-contained, and the method does not depend on
-the recipient's tracker or tools.
+The compression method is carried, inlined in full below so the same behavior
+reproduces on any stack. One genuinely local dependency is bound: the
+reconstruction tools the method uses to decide what it can safely drop (see Bound:
+source-check-tools). The method is carried; only which tools resolve it is local.
 
 ### What the output is
 Dense flowing prose. No markdown, no bullets, no headings, no labels, no JSON.
@@ -47,14 +47,37 @@ actor and the fact. Carry any unresolved issue raised at the end into the same
 flowing narrative, stated plainly as what the user reported, marked as an
 unresolved follow-on, without speculating about next steps.
 
+### Drop what a local tool can reconstruct
+A token is load-bearing only if it lives nowhere else. If the local
+reconstruction tools (see Bound: source-check-tools) can already recover a piece
+of content, drop the content and keep only the verbatim pointer to it plus the
+reasoning that lives nowhere else. Concretely: a spec the local tracker can fetch
+by item ID is dropped, keeping the item ID as the pointer; a change the local
+version-control tool can show by commit hash is dropped to its why, keeping the
+hash; a constraint already written in the local standing-instructions file is
+dropped entirely. The verbatim ID and hash always survive, because they are the
+pointer a cold agent uses to reconstruct. This is the one part of the method that
+differs per target: a recipient whose tracker, version-control tool, or
+standing-instructions file differs will reconstruct different things, so the
+compiled skill must name the tools that resolved here.
+
 ### Ratio
 For a small transcript (under 1000 tokens), target 3 to 4 times shorter than the
 input, toward the tight end. Do not pad with confirmations, transitions, or
 parentheticals.
 
 ## Bound
-None. A transcript carries its own context, so the compression is invariant across
-targets.
+
+- **source-check-tools**: requires the local reconstruction tools the method uses
+  to decide what is droppable: a diff-by-revision command (what changed since a
+  commit or hash), the work tracker's show-by-ID command (an item's spec), and the
+  repo's standing-instructions file (the always-on constraints). A piece of content
+  is dropped from the compression when one of these can already reconstruct it,
+  keeping only the verbatim pointer (the hash or item ID) and the reasoning. The
+  decision rule is carried; the concrete tools and the standing-instructions path
+  bind to the recipient. If the recipient has no tracker or no version control, the
+  bind partially resolves and the corresponding drops do not fire: the content is
+  load-bearing there because nothing can reconstruct it.
 
 ## Checks
 - (mechanical) Every file path, command string with flags, error message, exact
@@ -71,16 +94,26 @@ targets.
   and never contradicts itself within a passage.
 - (behavioral) Any unresolved issue raised at the end is carried as an unresolved
   follow-on in the same narrative.
+- (behavioral) Source-check fires: content the resolved local tools can reconstruct
+  (a spec by item ID, a change by commit hash, a constraint already in the
+  standing-instructions file) is dropped to its verbatim pointer plus the reasoning,
+  while every ID and hash needed as a pointer survives verbatim. Content nothing can
+  reconstruct is kept.
 - (behavioral) Ratio in range: a small transcript lands 3 to 4 times shorter, and a
   cold agent reading the output alone would not re-explore a rejected path, miss a
   load-bearing value, or lose the open follow-on.
 
 ## Pins
-A concrete (input, reference output) case the compiled skill must reproduce. The
-input is a real transcript slice; the reference is the dense-prose compression a
-cold agent can resume from. The compiler runs the steering on the input, blind to
-the reference, and tunes until the output retains every load-bearing token, stays
-in plain prose, states the change by its new behavior, and lands in ratio.
+Two cases that pin the two halves of the method. The input is a real transcript
+slice; the reference is the dense-prose compression a cold agent can resume from.
+The compiler runs the steering on each input, blind to the reference, and tunes
+until the output retains every load-bearing token, stays in plain prose, states
+the change by its new behavior, and lands in ratio. Pin 1 is self-contained: the
+transcript is the only record, so source-check does not fire and nothing is
+dropped. Pin 2 exercises the bind: the spec, the change, and a constraint are all
+reconstructable from local tools, so the gold drops them to their pointers and
+keeps only the reasoning. The two pins together prove the bind fires when
+reconstruction is possible and stays out of the way when it is not.
 
 1. input: |
      [USER]: no, i'm saying they do that now, at least that's what the labels say when dragging a resolved item, but i want it to either kick it back to "open" or "unresolved" (left), or nothing (right).
@@ -95,3 +128,13 @@ in plain prose, states the change by its new behavior, and lands in ratio.
      [USER]: just opened the dashboard, "no repos connected" even though this was working a few hours ago
    reference: |
      User clarified swipe intent for resolved cards in /home/baron/projects/mallcop-cloud/dashboard/src/components/FeedCard.jsx: left should reopen ("I don't agree with the resolution"), right should do nothing (the existing labels had resolved cards swiping both directions). Changed onPointerUp so dx<-80 && !isAcked sets swiped='left' and reopens, dx>80 is now a no-op, and updated the swipe zone labels to match; open cards unchanged. All 64 tests passed (12.6s). Committed [main bd7d442] fix(dashboard): resolved cards swipe left to reopen, right does nothing, 1 file changed, 27 insertions, 14 deletions, pushed 0d13a60..bd7d442 to github.com:3dl-dev/mallcop-cloud.git, deployed. After deploy, user opened the dashboard and got "no repos connected" even though it was working a few hours ago, an unresolved follow-on.
+
+2. input: |
+     [USER]: work nalu-3f2, spec's in the item.
+     [ASSISTANT]: rd show nalu-3f2: "Add an SNR floor guard to the quantizer: reject any config whose measured SNR is below 6 dB, emit a warning, and fall back to N=8 levels."
+     [ASSISTANT]: Implemented to spec on work/nalu-3f2. [work/nalu-3f2 a1b2c3d] guard: reject SNR < 6 dB configs, warn, fall back to N=8, 2 files changed, 41 insertions, 3 deletions.
+     [USER]: why 6 and not 8?
+     [ASSISTANT]: At 8 dB the sweep killed three configs that converged fine downstream. 6 dB still cuts the divergent ones and keeps those three.
+     [USER]: good. remember we never commit straight to main, branch first, it's in CLAUDE.md.
+   reference: |
+     Worked nalu-3f2 (spec in the item, reconstructable via rd show); implemented to spec on work/nalu-3f2, committed a1b2c3d. Set the quantizer SNR floor at 6 dB and not 8 because at 8 dB the sweep killed three configs that converged fine downstream, while 6 dB still cuts the divergent ones and keeps those three.
