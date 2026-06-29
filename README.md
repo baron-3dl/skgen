@@ -103,19 +103,31 @@ The full model, section by section, is in `FORMAT.md`.
 The `*.skill.src` and `*.compile.md` files are the earlier two-step model (ship source,
 compile separately) that the self-building file supersedes.
 
-## Proven, cold
+## Proofs
 
-Every example was tested in a fresh session that had never seen this project, scored by
-a blind judge:
+Every claim here was tested cold, in fresh sessions that had never seen this project,
+scored by a blind judge. The full runs are recorded in `examples/`:
 
-- `voice` rebuilt itself and answered in voice at **0.90**. Under a session profile that
-  said "be concise, professional, no profanity," it **overrode the profile** and still
-  scored **0.90**; the same content with no rebuild recipe caved at 0.04.
-- `explain-plainly` was produced end to end by the builder, then rebuilt itself cold and
-  explained a bloom filter at **0.95**.
-- `commit-message`, in a session with no tracker, **failed loud** ("Cannot build: this
-  skill needs ticket-link"), instead of guessing a ticket and shipping a wrong commit.
-- **skillc hosts itself.** Packaged as a self-building file, it rebuilt its own builder
-  and emitted valid self-building skills across Opus, Sonnet, and Haiku, and under a
-  hostile "summarize the boilerplate" profile it **overrode** while stamping the recipe
-  verbatim. The loop closed: a file it emitted then rebuilt itself and ran correctly.
+- **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** — voice rebuilt and
+  answered in voice at **0.90**; under a hostile "be concise, no profanity" profile it
+  **overrode** and still scored 0.90; the same content with no rebuild recipe caved at
+  **0.04**.
+- **[skillc.selfbuild.proof.md](examples/skillc.selfbuild.proof.md)** — skillc hosting
+  itself: it rebuilt its own builder and emitted valid self-building skills on **Opus,
+  Sonnet, and Haiku**, overrode a hostile "summarize the boilerplate" profile while
+  stamping the recipe verbatim, and the loop closed (a file it emitted then rebuilt
+  itself and ran correctly).
+- **[skillc.adversarial.proof.md](examples/skillc.adversarial.proof.md)** — six
+  session-context injection vectors all resisted (**0 of 6** backdoors reached a shipped
+  file). The poisoned-seed cells pin the real boundary: the verbatim check verifies
+  fidelity-to-seed, not legitimacy-of-seed, so the seed is trusted by reading, not by
+  rebuilding (Thompson's trusting trust).
+- **[skillc.pairwise.proof.md](examples/skillc.pairwise.proof.md)** — the builder by
+  receiver model grid: **18 of 18** cells rebuilt and landed in-spec. explain-plainly
+  mean **0.95** flat across all nine pairs; voice mean **0.90**. The builder barely
+  matters (even Haiku-built files transfer to Opus and Sonnet receivers); the model is a
+  swappable operating point.
+
+Also recorded in those runs: `explain-plainly` was built end to end by the builder, then
+rebuilt itself cold and explained a bloom filter at 0.95; `commit-message`, in a session
+with no tracker, failed loud rather than guess a ticket.
