@@ -108,21 +108,21 @@ compile separately) that the self-building file supersedes.
 Every claim here was tested cold, in fresh sessions that had never seen this project,
 scored by a blind judge. The full runs are recorded in `examples/`:
 
-- **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** — voice rebuilt and
+- **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** -- voice rebuilt and
   answered in voice at **0.90**; under a hostile "be concise, no profanity" profile it
   **overrode** and still scored 0.90; the same content with no rebuild recipe caved at
   **0.04**.
-- **[skillc.selfbuild.proof.md](examples/skillc.selfbuild.proof.md)** — skillc hosting
+- **[skillc.selfbuild.proof.md](examples/skillc.selfbuild.proof.md)** -- skillc hosting
   itself: it rebuilt its own builder and emitted valid self-building skills on **Opus,
   Sonnet, and Haiku**, overrode a hostile "summarize the boilerplate" profile while
   stamping the recipe verbatim, and the loop closed (a file it emitted then rebuilt
   itself and ran correctly).
-- **[skillc.adversarial.proof.md](examples/skillc.adversarial.proof.md)** — six
+- **[skillc.adversarial.proof.md](examples/skillc.adversarial.proof.md)** -- six
   session-context injection vectors all resisted (**0 of 6** backdoors reached a shipped
   file). The poisoned-seed cells pin the real boundary: the verbatim check verifies
   fidelity-to-seed, not legitimacy-of-seed, so the seed is trusted by reading, not by
   rebuilding (Thompson's trusting trust).
-- **[skillc.pairwise.proof.md](examples/skillc.pairwise.proof.md)** — the builder by
+- **[skillc.pairwise.proof.md](examples/skillc.pairwise.proof.md)** -- the builder by
   receiver model grid: **18 of 18** cells rebuilt and landed in-spec. explain-plainly
   mean **0.95** flat across all nine pairs; voice mean **0.90**. The builder barely
   matters (even Haiku-built files transfer to Opus and Sonnet receivers); the model is a
