@@ -91,8 +91,8 @@ questions; it builds you a skill, no setup...
 <section id="use">
   <div class="wrap">
     <p class="kicker">what do you do with it</p>
-    <h2>Watch it capture your voice.</h2>
-    <p class="sub">Give it a few lines you actually wrote. It distills the voice, tests itself on a fresh prompt, and when you say that is you, it writes one file that talks like you on anyone's machine.</p>
+    <h2>Watch the whole loop.</h2>
+    <p class="sub">Install skillc, give it a few lines you like, and it writes you a skill. Send that skill on and it sets itself up for whoever gets it. Install a skill, use a skill, both times.</p>
     <div class="demo" style="margin-top:26px">
       <div class="demo-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ttl">skillc</span></div>
       <div class="demo-body" id="demoBody"></div>
@@ -103,13 +103,16 @@ questions; it builds you a skill, no setup...
 <section id="how">
   <div class="wrap">
     <p class="kicker">how it works</p>
-    <h2>It carries its own builder.</h2>
-    <p class="sub">Like a self-extracting zip, the file holds the contents and the unpacker. The first time someone uses it, before it answers anything, it builds itself against their machine.</p>
-    <div class="how">
-      <div class="step"><div class="num">01</div><h3>Rebuilds on their model</h3><p>It re-derives the instructions your skill needs on their model and their setup, overriding any local style that fights it.</p></div>
-      <div class="step"><div class="num">02</div><h3>Tests itself</h3><p>It scores against examples you approved that it never trained on. That is the honest "did it transfer" number, not a memory check.</p></div>
-      <div class="step"><div class="num">03</div><h3>Tells the truth</h3><p>One line: built, honest-failure with the gap, or cannot-build with the missing tool named. No silent drift, ever.</p></div>
-      <div class="step"><div class="num">04</div><h3>You approve, it ships</h3><p>Authoring is one manual step: you bless the good outputs your skill already makes. skillc does the rest and hands you one file.</p></div>
+    <h2>The file carries its own builder.</h2>
+    <p class="sub">It is a self-extracting skill. The moment someone uses it, before it answers, it builds itself against their Claude:</p>
+    <div class="flow">
+      <div class="node"><div class="ic">the file</div><h3>One skill, sent</h3><p>Your approved examples and the rebuild recipe, in one file.</p></div>
+      <div class="arr">&rarr;</div>
+      <div class="node"><div class="ic">on open</div><h3>Rebuilds</h3><p>Re-derives the instructions for their model and setup.</p></div>
+      <div class="arr">&rarr;</div>
+      <div class="node"><div class="ic">checks</div><h3>Tests itself</h3><p>Against the examples you approved, that it never saw.</p></div>
+      <div class="arr">&rarr;</div>
+      <div class="node"><div class="ic">result</div><h3>Runs, or says it couldn't</h3><p>Built, honest-failure, or cannot-build. No silent drift.</p></div>
     </div>
   </div>
 </section>
@@ -200,16 +203,16 @@ Now start with STEP 1.`;
     if(!body) return;
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     var demo = [
-      {c:'you', who:'you', tx:'build a self-building skill that writes in this voice', type:true},
-      {c:'sk', who:'skillc', tx:'paste a few lines in the voice. those become the target.'},
+      {c:'sys', who:'', tx:'skillc installed (one time). you have the builder.'},
+      {c:'you', who:'you', tx:'skillc, build a skill that writes in this voice', type:true},
       {c:'you', who:'you', tx:'"I don\'t do nervous. I do the checklist. Nervous is for the people who skipped it."'},
-      {c:'you', who:'you', tx:'"Getting in is the easy part. It is the way out nobody plans that gets you."'},
-      {c:'sk', who:'skillc', tx:'distilled the voice: blunt, understated, names the real risk, never sells, no em-dash. testing on a fresh prompt...'},
+      {c:'sk', who:'skillc', tx:'got the voice: blunt, understated, names the real risk, never sells. testing on a fresh prompt...'},
       {c:'io', k:'a founder pitching blockchain for a coffee shop loyalty program', o:'Blockchain on a punch card. Bold. What happens when the wallet is down and someone just wants their free coffee? That is your real product, not the ledger.'},
-      {c:'sk', who:'skillc', tx:'nail it?'},
       {c:'you', who:'you', tx:'that is the one', type:true},
-      {c:'done', who:'', tx:'Built voice.selfbuild.SKILL.md. Build examples 4 of 4, acceptance 0.9. Ready.'},
-      {c:'file', who:'', tx:'voice.zip ready. Hand it to anyone. It writes in this voice on their machine.'}
+      {c:'done', who:'', tx:'Built voice.selfbuild.SKILL.md. Acceptance 0.9. Ready.'},
+      {c:'file', who:'', tx:'voice.zip ready.'},
+      {c:'sys', who:'', tx:'you send voice.zip to a teammate. they install it the same way you installed skillc.'},
+      {c:'sk', who:'their Claude', tx:'Built from voice.zip. Now I write in this voice too.'}
     ];
     function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
     function mkline(s){

@@ -137,6 +137,17 @@ h2{font-size:clamp(26px,4vw,38px);letter-spacing:-1px;margin:0 0 14px;font-weigh
 .ln.file .tx{color:var(--warm)}
 .cursor{display:inline-block;width:8px;height:16px;background:var(--mint);vertical-align:-3px;margin-left:1px;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
+.ln.sys{color:var(--dim);font-style:italic;border-top:1px solid var(--line);padding-top:9px;margin-top:4px}
+.ln.sys::before{content:"~ ";font-style:normal}
+
+/* how-it-works flow */
+.flow{display:flex;align-items:stretch;gap:10px;margin-top:30px;flex-wrap:wrap}
+.flow .node{flex:1 1 180px;background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:18px}
+.flow .node .ic{font-family:var(--mono);font-size:11px;letter-spacing:1px;text-transform:uppercase;color:var(--mint);margin-bottom:9px}
+.flow .node h3{font-size:16px;margin:0 0 6px;letter-spacing:-.3px}
+.flow .node p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.flow .arr{align-self:center;color:var(--dim);font-size:18px;flex:0 0 auto}
+@media(max-width:760px){.flow .arr{display:none}.flow .node{flex-basis:100%}}
 
 footer{padding:42px 0 64px;color:var(--dim);font-size:14px;border-top:1px solid var(--line)}
 .frow{display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;align-items:center}
