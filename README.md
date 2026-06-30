@@ -51,21 +51,25 @@ answers, checking each answer against the checks before sending.
 
 ### On claude.ai (web chat)
 
-It also runs in the web chat, where the operating point is your account's memory, custom
-instructions, and active style. claude.ai takes a skill as a ZIP, and Skills require code
-execution to be on (Settings, then Capabilities, then turn on code execution). Put the
-file in a folder named for the skill, as `SKILL.md`, and zip it:
+claude.ai cannot use the plugin marketplace (that is Claude Code only), and the operating
+point is your account's memory, custom instructions, and active style. It takes a skill as
+an uploaded ZIP, so the flow is download then upload:
 
-    mkdir voice && cp voice.selfbuild.SKILL.md voice/SKILL.md && zip -r voice.zip voice
-
-Then upload it under Settings, then Capabilities, then Skills, and use the skill. On
-first use it self-builds against your web session and reports the same one-line outcome.
+1. Turn on code execution: Settings, then Capabilities, then enable code execution (Skills
+   require it).
+2. Download the skill you want from the
+   [latest release](https://github.com/baron-3dl/skillc/releases/latest). Each skill is its
+   own zip: `voice.zip`, `explain-plainly.zip`, `commit-message.zip`, or `skillc.zip` for
+   the builder.
+3. Upload it: Settings, then Capabilities, then Skills, then upload the zip.
+4. Use the skill. On first use it self-builds against your web session and reports the
+   one-line outcome, then answers.
 
 Two honest limits on web chat. The self-build runs in a single conversation, so it partly
 grades against examples it can see (blindness is softer than in Claude Code, which can
 spawn a separate grader). And binds resolve only against connected tools, not local
-command-line tools, so a pure-carry skill (a voice, a writing rule) transfers fully while
-a skill that binds a local-only tool fails loud there, by design. Authoring new skills is
+command-line tools, so a pure-carry skill (voice, explain-plainly) transfers fully while a
+skill that binds a local-only tool fails loud there, by design. Authoring new skills is
 best done in Claude Code, where the builder can run your working skill in your real setup.
 
 ---

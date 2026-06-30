@@ -1,5 +1,5 @@
 {
   "name": "skillc",
   "description": "Self-building skills: a builder that packages a working skill into a file that rebuilds and tests itself on whoever receives it, plus worked example skills.",
-  "version": "0.1.1"
+  "version": "0.1.2"
 }
