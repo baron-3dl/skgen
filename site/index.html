@@ -73,8 +73,8 @@
 <section id="use">
   <div class="wrap">
     <p class="kicker">what do you do with it</p>
-    <h2>Point it at a skill. Get a portable one back.</h2>
-    <p class="sub">Installing gets you the builder. This is the whole job: tell it which skill, approve the outputs it shows you, and it writes one file that rebuilds itself on anyone.</p>
+    <h2>Watch it capture your voice.</h2>
+    <p class="sub">Give it a few lines you actually wrote. It distills the voice, tests itself on a fresh prompt, and when you say that is you, it writes one file that talks like you on anyone's machine.</p>
     <div class="demo" style="margin-top:26px">
       <div class="demo-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ttl">skillc</span></div>
       <div class="demo-body" id="demoBody"></div>
@@ -159,14 +159,16 @@
     if(!body) return;
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     var demo = [
-      {c:'you', who:'you', tx:'build a self-building skill from my "tldr" skill', type:true},
-      {c:'sk', who:'skillc', tx:'running tldr on a few of your inputs...'},
-      {c:'io', k:'a long thread that buries an ask', o:'they need your sign-off on the budget by friday.'},
-      {c:'sk', who:'skillc', tx:'approve these? they become the gold the skill rebuilds toward.'},
-      {c:'you', who:'you', tx:'yes, that one is right', type:true},
-      {c:'sk', who:'skillc', tx:'bucketed by move. binds: none. checks distilled.'},
-      {c:'done', who:'', tx:'Built tldr.selfbuild.SKILL.md. Build examples 2 of 2, acceptance 0.95. Ready.'},
-      {c:'file', who:'', tx:'tldr.zip ready. Send it to anyone. It rebuilds itself on their machine.'}
+      {c:'you', who:'you', tx:'build a self-building skill that writes in my voice', type:true},
+      {c:'sk', who:'skillc', tx:'paste a few lines you actually wrote. those become the target.'},
+      {c:'you', who:'you', tx:'"the queue looks like shit. a garbage sandwich, i guess."'},
+      {c:'you', who:'you', tx:'"QR code menu? Fuck that. order at the table, pay, walk out. Fuck. Yes."'},
+      {c:'sk', who:'skillc', tx:'distilled the voice: blunt, compressed, profanity as a hard beat, no em-dash. testing on a fresh prompt...'},
+      {c:'io', k:'react to a vendor pitching an NFT loyalty program for a coffee shop', o:'NFT loyalty program? Fuck that. nobody wants a crypto wallet to earn a free latte.'},
+      {c:'sk', who:'skillc', tx:'sound like you?'},
+      {c:'you', who:'you', tx:'yeah, that is me', type:true},
+      {c:'done', who:'', tx:'Built voice.selfbuild.SKILL.md. Build examples 3 of 3, acceptance 0.92. Ready.'},
+      {c:'file', who:'', tx:'voice.zip ready. Hand it to anyone. It writes in your voice on their machine.'}
     ];
     function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
     function mkline(s){
