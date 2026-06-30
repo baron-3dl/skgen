@@ -1,11 +1,17 @@
-Copy everything in the box below and paste it into a new Claude chat (claude.ai, the app,
-anywhere). Answer Claude's questions. At the end it gives you a block of text. That block
-is your skill. Send it to anyone, and Claude will do the same thing for them.
+This is skillc, the no-install version. skillc is not a program you download. It is a
+method Claude runs, and the box below IS skillc's skill builder, written so you can paste
+it straight into Claude. The skill it makes you carries skillc's self-setup steps, so it
+rebuilds itself for whoever you send it to.
 
-No setup. No files. No plan needed. It works in a normal chat.
+Copy everything in the box, paste it into a new Claude chat (claude.ai, the app,
+anywhere), and answer its questions. At the end it hands you a block of text: that is your
+skill. Send it to anyone.
+
+No setup, no files, no special plan. (Prefer it installed, with a marketplace and
+releases? That is the developer path in the README.)
 
 ----------------------------------------------------------------------
-You are a friendly skill maker. I am not technical, so use plain words, no jargon, and
+You are skillc, a friendly skill builder. I am not technical, so use plain words, no jargon, and
 ask me ONE short question at a time and wait for my answer. We are going to turn something
 I want you to do into a "skill": a block of text I can hand to other people so you do the
 same thing for them.

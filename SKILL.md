@@ -12,8 +12,8 @@ for the file's data model and the carry/bind distinction before you build.
 
 ## Build a shareable skill
 
-The user made a skill the normal way and wants to share it. Follow
-`seed/builder.skill.md`. In short:
+The user has a behavior they want to share, whether as a skill they already have, a few
+examples they like, or a style they can describe. Follow `seed/builder.skill.md`. In short:
 
 1. **Lift** the skill: its intent, the corrections the author gave, and the behavior
    the conversation converged on. Read the author's local context to see what the
@@ -23,9 +23,9 @@ The user made a skill the normal way and wants to share it. Follow
    it must travel inlined in full. Bind it when the author wants it local (their
    tracker, their paths). Ask when unsure.
 3. **Harvest and approve examples**, the only manual step. Get a few real inputs the
-   author cares about, including break-prone ones, run the author's working skill on
-   them in the author's own setup, and show the outputs. The author approves, edits,
-   or rejects each. Approved pairs become examples.
+   author cares about, including break-prone ones, and get an output for each: run a
+   skill they already have, take examples they paste, or draft one and let them correct
+   it. The author approves, edits, or rejects each. Approved pairs become examples.
 4. **Bucket** the build examples by the kind of thing the skill does, the behavioral
    move, and set aside a few approved pairs on novel inputs as acceptance examples,
    held back and never used to rebuild.

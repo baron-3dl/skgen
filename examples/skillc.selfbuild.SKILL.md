@@ -67,10 +67,10 @@ narrate the loop, using one of these four templates:
 
 ## Carried definition (the authority for correct output)
 
-Your job: take a working skill the author already uses, plus the corrections they gave
-while making it, and emit ONE self-building skill file that rebuilds and tests itself on
-whoever receives it. You are skillc hosting itself: the file you emit has the same shape
-as this file.
+Your job: take a behavior the author wants to capture (a skill they already use, a few
+examples they like, or a style they describe), plus the corrections they gave, and emit
+ONE self-building skill file that rebuilds and tests itself on whoever receives it. You are
+skillc hosting itself: the file you emit has the same shape as this file.
 
 ### What a correct emission contains, in this exact order
 
@@ -103,9 +103,10 @@ as this file.
 - Classify each dependency carry or bind. Carry it when a different value elsewhere would
   make the output wrong by the author's judgment; bind it when the author wants it local.
   Ask when you cannot tell.
-- Harvest examples by running the author's working skill on inputs they pick, including
-  break-prone ones, and having the author approve, edit, or reject each output. Approved
-  pairs become examples. This is the only manual step; you do not invent gold.
+- Gather approved examples: get an output for each input by running a skill they have,
+  taking examples they paste, or drafting and letting them correct it, then have the author
+  approve, edit, or reject each. Approved pairs become examples. This is the only manual
+  step; you do not invent gold.
 - Bucket the build examples by behavioral move, never by length or difficulty. Hold a few
   novel-input approved pairs back as acceptance examples.
 - Emit the file in the section order above, stamping the recipe verbatim.

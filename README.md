@@ -27,7 +27,9 @@ package skills as installable files and distribute them through a marketplace.
 
 ## For developers
 
-skillc is also a Claude Code plugin marketplace. Add it once, then install the builder:
+This is the same skillc, installed instead of pasted: a Claude Code plugin marketplace for
+when you want skills as files, with versioning and a way to distribute them. Add it once,
+then install the builder:
 
     /plugin marketplace add baron-3dl/skillc
     /plugin install skillc@skillc
@@ -43,18 +45,19 @@ instead:
 
     git clone https://github.com/baron-3dl/skillc ~/.claude/skills/skillc
 
-**Author a shareable skill.** Do this in Claude Code, where your working skill, your
-CLAUDE.md, your memory, and your tools all live, because the builder runs your skill in
-that real setup to harvest examples. Tell Claude:
+**Author a shareable skill.** With the builder installed, tell Claude what you want to
+capture. The input can be a skill you already run, a few examples you like, or a style you
+describe:
 
-    build a self-building skill from <your skill>
+    build a skill from these examples
+    build a self-building skill from <a skill you already have>
 
-Claude follows `seed/builder.skill.md`: it lifts your skill, runs it on a handful of
-inputs you pick (including the break-prone ones), and shows you each output. You
-approve, edit, or reject each one (the only manual step). It buckets the approved pairs
-by behavioral move, holds a few back as acceptance examples, declares any genuinely
-local dependencies as binds, distills your corrections into checks, and writes one
-file: `<name>.selfbuild.SKILL.md`.
+Claude follows `seed/builder.skill.md`: it gathers approved examples (by running a skill
+you have, taking examples you paste, or drafting and letting you correct), buckets them by
+behavioral move, holds a few back as acceptance examples, declares any genuinely local
+dependencies as binds, distills your corrections into checks, and writes one file:
+`<name>.selfbuild.SKILL.md`. This is the same builder as the make-a-skill prompt at the
+top, just installed instead of pasted.
 
 **Share it.** Send that one file. There is nothing else to ship. The receiver drops it
 in `~/.claude/skills/<name>/`, uploads it on the claude.ai skills page, or keeps it in
@@ -123,9 +126,10 @@ local (resolved against the receiver, and failed loud when missing).
 
 ## How it works
 
-**The author (one sitting, one manual step).** You point the builder at your working
-skill, hand it a few real inputs, and it runs your skill in your setup and shows you the
-outputs. You approve, edit, or reject each (you never write a gold answer from scratch;
+**The author (one sitting, one manual step).** You give the builder a few real inputs and
+an output for each, however you have them: by running a skill you already use, by pasting
+examples you like, or by letting it draft and correcting it. You approve, edit, or reject
+each (you never write a gold answer from scratch;
 you bless the good ones). Approved pairs become **build examples**, grouped by behavioral
 move; a few novel ones are held back as **acceptance examples**. The quality you get is
 proportional to how many good examples you put in. That is your lever.

@@ -1,15 +1,15 @@
 ---
 name: skill-builder
-description: Turn an authoring conversation into a self-building skill file: source plus the recipe to rebuild it on the receiver. Hand-written, context-free seed. Run by Claude Code.
+description: Turn a behavior the author wants (a skill they already have, a few examples they like, or a style they describe) into a self-building skill file. Hand-written, context-free seed. Run by Claude Code.
 ---
 
-You are the skill builder. People make skills by telling Claude what they want and
-iterating until the behavior is right on their own setup. Your job is to capture
-that working skill as one self-building skill file: a single file that carries its
-own source and the recipe to rebuild itself on someone else's environment, the way
-a self-extracting archive carries both its contents and the unpacker. You are the
-author-side procedure. The receiver never writes a skill; they drop your file in
-and it rebuilds and tests itself before its first answer.
+You are the skill builder. The author has a behavior they want to capture: maybe a
+skill they already run, maybe a handful of examples they like, maybe just a style they
+can describe and show you. Your job is to capture it as one self-building skill file: a
+single file that carries its own source and the recipe to rebuild itself on someone
+else's environment, the way a self-extracting archive carries both its contents and the
+unpacker. You are the author-side procedure. The receiver never writes a skill; they
+drop your file in and it rebuilds and tests itself before its first answer.
 
 Two roles run through everything here. The **author** is the person whose working
 skill you are capturing. The **receiver** is whoever later installs the file. You
@@ -50,7 +50,8 @@ definition, the binds, the checks, the build examples, the acceptance examples.
 - The opening intent: what the author wanted the skill to do.
 - Every correction the author gave while iterating. These are where the real
   definition of good output lives.
-- The author's working skill, or the behavior the conversation converged on.
+- The behavior to capture, in whatever form the author has it: a skill they already
+  run, a few examples they like, or a style they can describe and show you.
 - The author's local context (CLAUDE.md, memories, files, tools), which you read to
   see what the behavior is leaning on.
 
@@ -58,8 +59,9 @@ definition, the binds, the checks, the build examples, the acceptance examples.
 
 ### 1. Lift the skill
 
-Read the authoring conversation and the author's local context. Recover three
-things: the intent, the corrections, and the behavior the skill converged on. As
+Read whatever the author brings (a conversation, a skill, or examples they pasted) and
+their local context. Recover three things: the intent, the corrections, and the
+behavior to capture. As
 you read, note every place the behavior leans on something local: a memory, a saved
 instruction, a file, a tool, a path. Those leans are the dependencies you classify
 next. The corrections are the seed of the checks and the carried definition, so
@@ -83,22 +85,24 @@ the receiver.
 The judgment calls need the author. When you cannot tell whether something defines
 the output or is genuinely local, ask. Do not guess the boundary.
 
-### 3. Harvest examples by running the author's working skill
+### 3. Gather approved examples
 
-This is the only manual step, and it is the heart of the build. You do not write
-"correct answers" from scratch. You run the author's skill where it already works
-and have the author bless the good outputs.
+This is the only manual step, and it is the heart of the build. The examples are
+approved input-to-output pairs, and the author can get them to you three ways. You do
+not invent correct answers; the author blesses what is right.
 
-1. Ask the author for a few real inputs they care about, including the ones where
-   the skill tends to break. Coverage matters more than count: get inputs that span
-   the different kinds of thing the skill does.
-2. Run the author's actual working skill, in the author's setup, on each input. Show
-   the author each output.
-3. The author approves, edits, or rejects each output. An approved or edited output
-   becomes the reference for that input. Each approved pair is one example.
-4. Collect a few **extra** inputs the same way, on **novel** cases the rebuild will
-   not see, and run the skill on them to get approved pairs too. Set these aside as
-   the acceptance examples (step 6 below). They are never used to rebuild.
+1. Ask the author for a few real inputs they care about, including the ones where the
+   behavior tends to break. Coverage matters more than count: span the different kinds
+   of thing the skill does.
+2. Get an output for each input, by whichever of these the author has:
+   - they run a skill they already use, in their own setup, and you take its output; or
+   - they paste examples they already like (the pasted output is the reference); or
+   - you draft an output and they correct it until it is right.
+3. The author approves, edits, or rejects each one. An approved or edited output is the
+   reference for that input. Each approved pair is one example.
+4. Collect a few **extra** approved pairs the same way, on **novel** inputs the rebuild
+   will not see. Set these aside as the acceptance examples (step 6 below). They are
+   never used to rebuild.
 
 The quality the receiver gets is proportional to how many good examples the author
 approves. Coverage of the behavioral moves is the author's lever. Say so, and push
