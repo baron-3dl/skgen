@@ -115,30 +115,38 @@ h2{font-size:clamp(26px,4vw,38px);letter-spacing:-1px;margin:0 0 14px;font-weigh
 .ex-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .ex-actions .note{font-size:13px;color:var(--dim)}
 
-/* demo terminal */
-.demo{background:#0a0e15;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px -40px rgba(0,0,0,.8);max-width:760px}
-.demo-bar{display:flex;align-items:center;gap:7px;padding:13px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
-.demo-bar i{width:11px;height:11px;border-radius:50%;background:#2a3442}
-.demo-bar i.r{background:#ff5f57}
-.demo-bar i.y{background:#febc2e}
-.demo-bar i.g{background:#28c840}
-.demo-bar .ttl{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:8px}
-.demo-body{padding:20px;font-family:var(--mono);font-size:14px;line-height:1.7;min-height:330px}
-.ln{margin:0 0 10px;opacity:0;transform:translateY(3px);transition:opacity .25s ease,transform .25s ease}
-.ln.show{opacity:1;transform:none}
-.ln .who{color:var(--dim)}
-.ln.you .who{color:var(--mint)}
-.ln.you .tx{color:var(--ink)}
-.ln.sk .tx{color:var(--muted)}
-.ln.io{background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:11px 13px}
-.ln.io .k{color:var(--dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-right:6px}
-.ln.io .o{color:var(--mint)}
-.ln.done .tx{color:var(--mint);font-weight:700}
-.ln.file .tx{color:var(--warm)}
-.cursor{display:inline-block;width:8px;height:16px;background:var(--mint);vertical-align:-3px;margin-left:1px;animation:blink 1s steps(1) infinite}
-@keyframes blink{50%{opacity:0}}
-.ln.sys{color:var(--dim);font-style:italic;border-top:1px solid var(--line);padding-top:9px;margin-top:4px}
-.ln.sys::before{content:"~ ";font-style:normal}
+/* demo chat (modeled on the Claude chat interface) */
+.chat{background:#0e131b;border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 30px 80px -40px rgba(0,0,0,.8);max-width:720px}
+.chat-head{display:flex;align-items:center;gap:9px;padding:12px 15px;border-bottom:1px solid var(--line);background:var(--panel)}
+.chat-head .logo{width:24px;height:24px;border-radius:7px;background:var(--mint);color:var(--mint-ink);display:grid;place-items:center;font-family:var(--mono);font-weight:800;font-size:14px}
+.chat-head .who{font-weight:600;font-size:14px}
+.chat-head .pill{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--dim);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.chat-body{padding:18px;display:flex;flex-direction:column;gap:12px;min-height:330px}
+.msg{max-width:86%;opacity:0;transform:translateY(5px);transition:opacity .28s ease,transform .28s ease}
+.msg.show{opacity:1;transform:none}
+.msg.user{align-self:flex-end;background:var(--panel2);border:1px solid var(--line);border-radius:14px 14px 4px 14px;padding:9px 14px;font-size:14px;line-height:1.5;color:var(--ink)}
+.msg.bot{align-self:flex-start;max-width:94%}
+.msg.bot .nm{font-family:var(--mono);font-size:11px;color:var(--mint);margin-bottom:4px}
+.msg.bot .bd{color:var(--ink);font-size:14px;line-height:1.55}
+.msg.sys{align-self:center;text-align:center;max-width:92%}
+.msg.sys span{display:inline-block;color:var(--dim);font-size:12px;border:1px solid var(--line);border-radius:999px;padding:4px 13px;background:var(--panel)}
+.draft{margin-top:9px;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:11px 13px;font-size:13.5px;line-height:1.5;color:var(--muted)}
+.draft .lab{font-family:var(--mono);font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+.draft .o{color:var(--mint)}
+.draft .pair+.pair{margin-top:9px}
+.chip{display:inline-flex;align-items:center;gap:9px;margin-top:9px;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-family:var(--mono);font-size:13px;color:var(--ink)}
+.chip .ic{color:var(--mint);font-weight:700}
+.typing{display:inline-flex;gap:4px;padding:6px 0}
+.typing i{width:6px;height:6px;border-radius:50%;background:var(--dim);animation:tdot 1.2s infinite}
+.typing i:nth-child(2){animation-delay:.18s}
+.typing i:nth-child(3){animation-delay:.36s}
+@keyframes tdot{0%,80%,100%{opacity:.25}40%{opacity:1}}
+.chat-input{display:flex;align-items:center;gap:10px;padding:11px 13px;border-top:1px solid var(--line);background:var(--panel)}
+.chat-input .field{flex:1;color:var(--ink);font-size:14px;min-height:18px}
+.chat-input .field:empty::before{content:"Message Claude";color:var(--dim)}
+.chat-input .car{display:inline-block;width:7px;height:15px;background:var(--mint);vertical-align:-3px;margin-left:1px;animation:carblink 1s steps(1) infinite}
+@keyframes carblink{50%{opacity:0}}
+.chat-input .send{width:30px;height:30px;border-radius:8px;background:var(--mint);color:var(--mint-ink);display:grid;place-items:center;flex:0 0 auto;font-size:15px;font-weight:700}
 
 /* how-it-works flow */
 .flow{display:flex;align-items:stretch;gap:10px;margin-top:30px;flex-wrap:wrap}

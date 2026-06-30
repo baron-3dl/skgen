@@ -93,9 +93,10 @@ questions; it builds you a skill, no setup...
     <p class="kicker">what do you do with it</p>
     <h2>Watch the whole loop.</h2>
     <p class="sub">Install skillc, give it a few lines you like, and it writes you a skill. Send that skill on and it sets itself up for whoever gets it. Install a skill, use a skill, both times.</p>
-    <div class="demo" style="margin-top:26px">
-      <div class="demo-bar"><i class="r"></i><i class="y"></i><i class="g"></i><span class="ttl">skillc</span></div>
-      <div class="demo-body" id="demoBody"></div>
+    <div class="chat" style="margin-top:26px">
+      <div class="chat-head"><span class="logo">C</span><span class="who">Claude</span><span class="pill">skillc</span></div>
+      <div class="chat-body" id="chatBody"></div>
+      <div class="chat-input"><div class="field" id="chatField"></div><div class="send">&uarr;</div></div>
     </div>
   </div>
 </section>
@@ -198,46 +199,74 @@ Now start with STEP 1.`;
   });
 
   (function(){
-    var body = document.getElementById('demoBody');
-    if(!body) return;
+    var body = document.getElementById('chatBody');
+    var field = document.getElementById('chatField');
+    if(!body || !field) return;
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     var demo = [
-      {c:'sys', who:'', tx:'skillc installed (one time). you have the builder.'},
-      {c:'you', who:'you', tx:'skillc, build a skill that writes in this voice', type:true},
-      {c:'you', who:'you', tx:'"I don\'t do nervous. I do the checklist. Nervous is for the people who skipped it."'},
-      {c:'sk', who:'skillc', tx:'got the voice: blunt, understated, names the real risk, never sells. testing on a fresh prompt...'},
-      {c:'io', k:'a founder pitching blockchain for a coffee shop loyalty program', o:'Blockchain on a punch card. Bold. What happens when the wallet is down and someone just wants their free coffee? That is your real product, not the ledger.'},
-      {c:'you', who:'you', tx:'that is the one', type:true},
-      {c:'done', who:'', tx:'Built voice.selfbuild.SKILL.md. Acceptance 0.9. Ready.'},
-      {c:'file', who:'', tx:'voice.zip ready.'},
-      {c:'sys', who:'', tx:'you send voice.zip to a teammate. they install it the same way you installed skillc.'},
-      {c:'sk', who:'their Claude', tx:'Built from voice.zip. Now I write in this voice too.'}
+      {t:'sys', x:'skillc installed. you have the builder.'},
+      {t:'user', x:'skillc, build a skill that writes in this voice'},
+      {t:'user', x:'"I don\'t do nervous. I do the checklist. Nervous is for the people who skipped it."'},
+      {t:'bot', x:'Got it: blunt, understated, never sells. Let me test it on something new.'},
+      {t:'bot', draft:{in:'a founder pitching blockchain for a coffee shop loyalty program', out:'Blockchain on a punch card. Bold. What happens when the wallet is down and someone just wants their free coffee? That is your real product, not the ledger.'}},
+      {t:'user', x:'that is the one'},
+      {t:'bot', x:'Done. Built your skill.', file:'voice.zip'},
+      {t:'sys', x:'you send voice.zip to a teammate. they install it the same way you did.'},
+      {t:'bot', who:'Their Claude', x:'Built from voice.zip. I write in this voice now too.'}
     ];
     function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
-    function mkline(s){
-      var el=document.createElement('div'); el.className='ln '+s.c;
-      if(s.c==='io'){ el.innerHTML='<span class="k">in</span>'+s.k+'<br><span class="k">out</span><span class="o">'+s.o+'</span>'; }
-      else { el.innerHTML=(s.who?'<span class="who">'+s.who+' &#9656; </span>':'')+'<span class="tx"></span>'; }
-      body.appendChild(el); return el;
+    function show(el){ requestAnimationFrame(function(){ el.classList.add('show'); }); body.scrollTop=body.scrollHeight; }
+    function sysMsg(x){ var el=document.createElement('div'); el.className='msg sys'; var s=document.createElement('span'); s.textContent=x; el.appendChild(s); body.appendChild(el); show(el); }
+    function bubble(x){ var el=document.createElement('div'); el.className='msg user'; el.textContent=x; body.appendChild(el); show(el); }
+    function botEl(m){
+      var el=document.createElement('div'); el.className='msg bot';
+      var nm=document.createElement('div'); nm.className='nm'; nm.textContent=m.who||'Claude'; el.appendChild(nm);
+      var bd=document.createElement('div'); bd.className='bd'; if(m.x) bd.textContent=m.x;
+      if(m.draft){
+        var d=document.createElement('div'); d.className='draft';
+        var p1=document.createElement('div'); p1.className='pair';
+        var l1=document.createElement('div'); l1.className='lab'; l1.textContent='prompt'; p1.appendChild(l1);
+        p1.appendChild(document.createTextNode(m.draft.in));
+        var p2=document.createElement('div'); p2.className='pair';
+        var l2=document.createElement('div'); l2.className='lab'; l2.textContent='in your voice'; p2.appendChild(l2);
+        var o=document.createElement('span'); o.className='o'; o.textContent=m.draft.out; p2.appendChild(o);
+        d.appendChild(p1); d.appendChild(p2); bd.appendChild(d);
+      }
+      if(m.file){
+        var c=document.createElement('div'); c.className='chip';
+        var ic=document.createElement('span'); ic.className='ic'; ic.textContent='\u2193'; c.appendChild(ic);
+        c.appendChild(document.createTextNode(m.file)); bd.appendChild(c);
+      }
+      el.appendChild(bd); return el;
     }
-    async function typeInto(el, text){
-      var tx=el.querySelector('.tx'); var cur=document.createElement('span'); cur.className='cursor'; el.appendChild(cur);
-      for(var i=0;i<text.length;i++){ tx.textContent+=text.charAt(i); await sleep(28); }
-      cur.remove();
+    async function userMsg(x){
+      var t=document.createTextNode(''); var car=document.createElement('span'); car.className='car';
+      field.textContent=''; field.appendChild(t); field.appendChild(car);
+      for(var i=0;i<x.length;i++){ t.textContent+=x.charAt(i); await sleep(24); }
+      await sleep(380); field.textContent=''; bubble(x); await sleep(450);
+    }
+    async function botMsg(m){
+      var ti=document.createElement('div'); ti.className='msg bot show';
+      ti.innerHTML='<div class="nm">'+(m.who||'Claude')+'</div><div class="typing"><i></i><i></i><i></i></div>';
+      body.appendChild(ti); body.scrollTop=body.scrollHeight;
+      await sleep(950); ti.remove();
+      var el=botEl(m); body.appendChild(el); show(el); await sleep(m.draft?1400:950);
     }
     function renderStatic(){
       body.innerHTML='';
-      demo.forEach(function(s){ var el=mkline(s); el.classList.add('show'); if(s.c!=='io'){ el.querySelector('.tx').textContent=s.tx; } });
+      demo.forEach(function(m){
+        if(m.t==='sys') sysMsg(m.x);
+        else if(m.t==='user') bubble(m.x);
+        else { var el=botEl(m); el.classList.add('show'); body.appendChild(el); }
+      });
     }
     async function play(){
-      body.innerHTML='';
+      body.innerHTML=''; field.textContent='';
       for(var i=0;i<demo.length;i++){
-        var s=demo[i]; var el=mkline(s);
-        await sleep(70); el.classList.add('show');
-        if(s.type){ await typeInto(el, s.tx); }
-        else if(s.c!=='io'){ el.querySelector('.tx').textContent=s.tx; }
-        body.scrollTop=body.scrollHeight;
-        await sleep(s.c==='io'?1200:(s.type?550:900));
+        var m=demo[i];
+        if(m.t==='sys'){ sysMsg(m.x); await sleep(1200); }
+        else if(m.t==='user'){ await userMsg(m.x); }
+        else { await botMsg(m); }
       }
       await sleep(7000); play();
     }
