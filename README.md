@@ -182,19 +182,6 @@ Also recorded in those runs: `explain-plainly` was built end to end by the build
 rebuilt itself cold and explained a bloom filter at 0.95; `commit-message`, in a session
 with no tracker, failed loud rather than guess a ticket.
 
-## Provenance
-
-Every commit on `main` is timestamped on the Bitcoin blockchain via OpenTimestamps, as a
-forensically valid, independently verifiable proof of existence (a prior-art and
-inventorship date). On each push, `.github/workflows/attest.yml` stamps the commit SHA
-and commits the proof to `.attestations/<sha>.ots`; a daily job upgrades each proof from
-the OpenTimestamps calendar to a Bitcoin anchor. Verify a proof with the OpenTimestamps
-client (`pip install opentimestamps-client`):
-
-    printf '%s' "<commit-sha>" > commit.txt
-    cp .attestations/<commit-sha>.ots commit.txt.ots
-    ots verify commit.txt.ots
-
 ## License
 
 MIT. See [LICENSE](LICENSE).
