@@ -1,25 +1,40 @@
 #!/usr/bin/env bash
-# Generate the Claude Code plugin payload (skills/) from the repo's source of truth.
-# The repo root (SKILL.md, FORMAT.md, seed/, examples/) is canonical; skills/ is the
-# packaged, installable form the plugin marketplace serves. Re-run after changing a
-# source skill, and on every release.
+# Generate the Claude Code plugin payload (plugins/) from the repo's source of truth.
+# Two plugins, kept separate on purpose:
+#   skillc          - the builder (the tool)
+#   skillc-examples - worked self-building example skills (the demos)
+# The repo root (SKILL.md, FORMAT.md, seed/) and examples/ are canonical; plugins/ is
+# the packaged, installable form. Re-run after changing a source skill, and on release.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-rm -rf skills
-mkdir -p skills/skillc/seed
+rm -rf plugins
 
-# The builder, as a self-contained skill: its SKILL.md references FORMAT.md and seed/,
-# so they travel beside it.
-cp SKILL.md                  skills/skillc/SKILL.md
-cp FORMAT.md                 skills/skillc/FORMAT.md
-cp seed/builder.skill.md     skills/skillc/seed/builder.skill.md
-cp seed/rebuild.skill.md     skills/skillc/seed/rebuild.skill.md
+# --- plugin: skillc (the builder) ---
+mkdir -p plugins/skillc/.claude-plugin plugins/skillc/skills/skillc/seed
+cat > plugins/skillc/.claude-plugin/plugin.json <<'JSON'
+{
+  "name": "skillc",
+  "description": "The builder: package a working skill into one self-building file that rebuilds and tests itself on whoever receives it."
+}
+JSON
+cp SKILL.md               plugins/skillc/skills/skillc/SKILL.md
+cp FORMAT.md              plugins/skillc/skills/skillc/FORMAT.md
+cp seed/builder.skill.md  plugins/skillc/skills/skillc/seed/builder.skill.md
+cp seed/rebuild.skill.md  plugins/skillc/skills/skillc/seed/rebuild.skill.md
 
-# The self-building example skills, each as one installable skill.
+# --- plugin: skillc-examples (the demos) ---
+mkdir -p plugins/skillc-examples/.claude-plugin
+cat > plugins/skillc-examples/.claude-plugin/plugin.json <<'JSON'
+{
+  "name": "skillc-examples",
+  "description": "Worked self-building example skills built and tested with skillc: voice, explain-plainly, commit-message."
+}
+JSON
 for ex in voice explain-plainly commit-message; do
-  mkdir -p "skills/$ex"
-  cp "examples/$ex.selfbuild.SKILL.md" "skills/$ex/SKILL.md"
+  mkdir -p "plugins/skillc-examples/skills/$ex"
+  cp "examples/$ex.selfbuild.SKILL.md" "plugins/skillc-examples/skills/$ex/SKILL.md"
 done
 
-echo "packaged skills/ from source ($(find skills -name SKILL.md | wc -l | tr -d ' ') skills)"
+echo "packaged plugins/ from source"
+find plugins -name SKILL.md | sort | sed 's/^/  /'

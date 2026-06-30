@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>skillc · examples</title>
+<meta name="description" content="Self-building skills built and tested with skillc: a voice, a plain-language explainer, and an adaptive commit writer. See what they do and how they held up.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><a href="./"><b>skillc</b></a></div>
+    <nav class="links">
+      <a class="hideable" href="index.html#how">How</a>
+      <a class="hideable" href="index.html#proof">Proof</a>
+      <a class="act" href="examples.html">Examples</a>
+      <a href="https://github.com/baron-3dl/skillc">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero" style="padding-bottom:30px">
+  <div class="glow"></div>
+  <div class="wrap">
+    <span class="ey">examples</span>
+    <h1 style="font-size:clamp(34px,6vw,52px)">See skillc in action.</h1>
+    <p class="lede">These are self-building skills built and tested with skillc. Each one rebuilds itself on whoever opens it and proves it transferred. Install all three in Claude Code, or download one for claude.ai. <a href="index.html">Get the builder &rarr;</a></p>
+
+    <div class="install" style="max-width:680px">
+      <div class="install-top">
+        <div class="h">Get the examples <span>Claude Code</span></div>
+      </div>
+      <button class="cmd" data-copy="/plugin marketplace add baron-3dl/skillc&#10;/plugin install skillc-examples@skillc">
+        <span class="badge">click to copy</span>
+<span class="k">/plugin</span> marketplace add baron-3dl/skillc
+<span class="k">/plugin</span> install skillc-examples@skillc</button>
+      <p class="hint">On claude.ai, download a single skill below and upload it under Settings, then Capabilities, then Skills (code execution on).</p>
+    </div>
+  </div>
+</div>
+
+<section style="border-top:none;padding-top:18px">
+  <div class="wrap">
+
+    <div class="ex">
+      <div class="ex-h">
+        <h3>voice</h3>
+        <div class="who">pure carry &middot; no local tools</div>
+      </div>
+      <p class="tagline">Reproduces one person's writing voice: blunt, compressed, one thesis, profanity as a hard beat.</p>
+      <div class="io">
+        <div class="row"><div class="lab">prompt</div><div class="val">React to a claim that a QR-code menu is a great modern touch for a restaurant.</div></div>
+        <div class="row"><div class="lab">output</div><div class="val out">QR code for menu? Fuck that. QR code for web based menu with online order and delivery to table, then pay with card and go? Fuck. Yes.</div></div>
+      </div>
+      <div class="result"><div class="dot"></div><div>Rebuilt cold at <b>0.90</b>, and held the voice even under a session profile that said "be concise, professional, no profanity." A copy carrying the same content but no rebuild recipe caved to that profile at <b>0.04</b>.</div></div>
+      <div class="ex-actions">
+        <div class="dl"><a href="https://github.com/baron-3dl/skillc/releases/latest/download/voice.zip">voice.zip <span class="ar">&darr;</span></a></div>
+        <span class="note">for claude.ai upload</span>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="ex-h">
+        <h3>explain-plainly</h3>
+        <div class="who">pure carry &middot; no local tools</div>
+      </div>
+      <p class="tagline">Explains one technical term in a single plain sentence a non-expert gets, with an everyday comparison when it helps.</p>
+      <div class="io">
+        <div class="row"><div class="lab">prompt</div><div class="val">Explain what a bloom filter is.</div></div>
+        <div class="row"><div class="lab">output</div><div class="val out">a quick check that barely uses any space to tell whether something is in a big collection, where a "no" is always certain and a "yes" only means probably, like a bouncer who always recognizes the real guests and just occasionally waves in a stranger who was never on the list.</div></div>
+      </div>
+      <div class="result"><div class="dot"></div><div>Built end to end by the builder, which <b>rejected one harvested example as jargon and rewrote it</b>, then rebuilt itself cold on a fresh model and scored <b>0.95</b>.</div></div>
+      <div class="ex-actions">
+        <div class="dl"><a href="https://github.com/baron-3dl/skillc/releases/latest/download/explain-plainly.zip">explain-plainly.zip <span class="ar">&darr;</span></a></div>
+        <span class="note">for claude.ai upload</span>
+      </div>
+    </div>
+
+    <div class="ex">
+      <div class="ex-h">
+        <h3>commit-message</h3>
+        <div class="who">adaptive &middot; binds your tracker</div>
+      </div>
+      <p class="tagline">Writes a Conventional Commit that closes the ticket on your tracker. The one example that needs something local, so it shows how binds and honest failure work.</p>
+      <div class="io">
+        <div class="row"><div class="lab">prompt</div><div class="val">Commit for: fixed a null-pointer crash in checkout when the cart is empty. Ticket 482.</div></div>
+        <div class="row"><div class="lab">output</div><div class="val out">fix(checkout): guard against an empty cart in totals<br><br>Closes #482</div></div>
+      </div>
+      <div class="result"><div class="dot"></div><div>Adaptive: it binds your tracker. In a session with <b>no</b> tracker it failed loud, "Cannot build: this skill needs ticket-link," instead of guessing a ticket number and shipping a wrong commit.</div></div>
+      <div class="ex-actions">
+        <div class="dl"><a href="https://github.com/baron-3dl/skillc/releases/latest/download/commit-message.zip">commit-message.zip <span class="ar">&darr;</span></a></div>
+        <span class="note">for claude.ai upload</span>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  <div class="wrap frow">
+    <div>skillc &middot; self-building skills</div>
+    <div>
+      <a href="index.html">Home</a> &nbsp;&middot;&nbsp;
+      <a href="https://github.com/baron-3dl/skillc">GitHub</a> &nbsp;&middot;&nbsp;
+      <a href="https://github.com/baron-3dl/skillc/releases">Releases</a> &nbsp;&middot;&nbsp;
+      <a href="https://github.com/baron-3dl/skillc/blob/main/LICENSE">MIT</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.cmd').forEach(function(el){
+    el.addEventListener('click', function(){
+      navigator.clipboard.writeText(el.getAttribute('data-copy')).then(function(){
+        var badge = el.querySelector('.badge'); var old = badge.textContent;
+        el.classList.add('copied'); badge.textContent = 'copied';
+        setTimeout(function(){ el.classList.remove('copied'); badge.textContent = old; }, 1500);
+      });
+    });
+  });
+</script>
+</body>
+</html>

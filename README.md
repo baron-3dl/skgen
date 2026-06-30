@@ -10,14 +10,19 @@ unpacker.
 
 ## Use it
 
-skillc is a Claude Code plugin marketplace. Add it once, then install the plugin:
+skillc is a Claude Code plugin marketplace. Add it once, then install the builder:
 
     /plugin marketplace add baron-3dl/skillc
     /plugin install skillc@skillc
 
-That installs the builder plus the example skills (`voice`, `explain-plainly`,
-`commit-message`), namespaced under `skillc:`. Update later with `/plugin marketplace
-update`. Or clone it as a plain skill instead:
+`skillc` is the tool. The worked example skills are a separate plugin,
+`skillc-examples` (voice, explain-plainly, commit-message); install it too if you want
+the demos:
+
+    /plugin install skillc-examples@skillc
+
+Update later with `/plugin marketplace update`. Or clone the repo as a plain skill
+instead:
 
     git clone https://github.com/baron-3dl/skillc ~/.claude/skills/skillc
 

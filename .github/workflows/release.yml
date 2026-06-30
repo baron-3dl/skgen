@@ -19,10 +19,11 @@ jobs:
 
       - name: Bundle the plugin payload and a per-skill zip for claude.ai upload
         run: |
-          zip -r skillc-skills.zip skills .claude-plugin
-          for d in skills/*/; do
+          zip -r skillc-skills.zip plugins .claude-plugin
+          for d in plugins/*/skills/*/; do
             name=$(basename "$d")
-            (cd skills && zip -r "../$name.zip" "$name")
+            parent=$(dirname "$d")
+            (cd "$parent" && zip -r "$GITHUB_WORKSPACE/$name.zip" "$name")
           done
 
       - name: Create GitHub Release
