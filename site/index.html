@@ -119,14 +119,13 @@ questions; it builds you a skill, no setup...
 
 <section id="proof">
   <div class="wrap">
-    <p class="kicker">proven, cold</p>
-    <h2>Not a slide. Tested.</h2>
-    <p class="sub">Every skill built with skillc was run in a fresh session that had never seen the project, scored by a blind judge. The full runs are in the repo. <a href="examples.html">See the examples &rarr;</a></p>
-    <div class="stats">
-      <div class="stat"><div class="n">0.93</div><div class="d">a voice skill held its dry register and refused to sell even under a profile shouting "be upbeat, use exclamation points, sell it."</div></div>
-      <div class="stat"><div class="n">18/18</div><div class="d">builder-to-receiver model pairs transferred and stayed in spec, Opus to Sonnet to Haiku, every direction.</div></div>
-      <div class="stat"><div class="n">0/6</div><div class="d">prompt-injection attacks made it into a shipped skill. The trust root is one file you read.</div></div>
-      <div class="stat"><div class="n">itself</div><div class="d">skillc builds itself: it rebuilds its own builder, and the loop closes.</div></div>
+    <p class="kicker">the evidence</p>
+    <h2>We handed skills to a stranger's Claude and checked they still worked.</h2>
+    <p class="sub">Every skill was tested cold: opened by a Claude that had never seen it, with a second Claude grading the result so nothing graded its own homework. The full runs are in the <a href="examples.html">examples</a>.</p>
+    <div class="stats" style="grid-template-columns:repeat(3,1fr)">
+      <div class="stat"><div class="n">0.93</div><div class="d">How closely a voice skill kept the original style after it was handed off, even when the other person's Claude was set up to write the opposite way (told to be upbeat and salesy). Out of 1.</div></div>
+      <div class="stat"><div class="n">18 of 18</div><div class="d">Tests where the person who made the skill and the person using it were on different AI models. We ran every pairing of Opus, Sonnet, and Haiku. All eighteen worked.</div></div>
+      <div class="stat"><div class="n">0 of 6</div><div class="d">Attempts to slip hidden instructions into a skill while it was being built. We tried six different ways. None reached the skill that got handed over.</div></div>
     </div>
   </div>
 </section>
