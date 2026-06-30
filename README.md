@@ -1,16 +1,33 @@
 # skillc
 
-A skill that works great for you often comes out worse for someone else, because while
-you were getting it right it quietly started leaning on your setup: your saved
-instructions, your memory, your tools. skillc ships a skill as one self-building file
-that rebuilds itself on whoever receives it and checks its own output against examples
-you approved, so it either reproduces your quality or says plainly that it could not.
-Like a self-extracting archive: the file you send contains both the contents and the
-unpacker.
+A skill is a set of instructions that makes Claude do something your way. skillc helps you
+make a skill you can hand to other people, so it works the same for them, not just on your
+own machine. For most people there is nothing to install, no files, and no special plan.
+It works in a normal Claude chat.
 
-## Use it
+## Make a skill (3 steps)
 
-skillc is a Claude Code plugin marketplace. Add it once, then install the builder:
+1. Open Claude (claude.ai, the app, anywhere). Paste in the prompt from
+   [make-a-skill.md](make-a-skill.md).
+2. Answer its questions: what you want it to do, two or three examples you like, and your
+   taste. It shows you a test email or answer, you say "yes" or "tweak that."
+3. It hands you a block of text. Copy it. That is your skill.
+
+## Use a skill someone sent you
+
+Paste their block of text into a new Claude chat, then talk to Claude normally. It sets
+itself up for you and follows the skill. To keep it without re-pasting, make a Project in
+Claude and paste the block into the Project's Instructions once; every chat in that
+Project will use it.
+
+That is the whole thing for most people. Everything below is for developers who want to
+package skills as installable files and distribute them through a marketplace.
+
+---
+
+## For developers
+
+skillc is also a Claude Code plugin marketplace. Add it once, then install the builder:
 
     /plugin marketplace add baron-3dl/skillc
     /plugin install skillc@skillc
