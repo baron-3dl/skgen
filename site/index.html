@@ -119,13 +119,13 @@ questions; it builds you a skill, no setup...
 
 <section id="proof">
   <div class="wrap">
-    <p class="kicker">the evidence</p>
-    <h2>We handed skills to a stranger's Claude and checked they still worked.</h2>
-    <p class="sub">Every skill was tested cold: opened by a Claude that had never seen it, with a second Claude grading the result so nothing graded its own homework. The full runs are in the <a href="examples.html">examples</a>.</p>
+    <p class="kicker">what we have tested so far</p>
+    <h2>Tested in automated runs, not yet with real users.</h2>
+    <p class="sub">No one outside the project has used these yet. What we have done: automated runs where separate Claude sessions build, run, and grade the skills, some on different models, so the score never comes from the same Claude that made the skill. Every run is logged in the <a href="examples.html">examples</a>, so you can read exactly what happened and check it.</p>
     <div class="stats" style="grid-template-columns:repeat(3,1fr)">
-      <div class="stat"><div class="n">0.93</div><div class="d">How closely a voice skill kept the original style after it was handed off, even when the other person's Claude was set up to write the opposite way (told to be upbeat and salesy). Out of 1.</div></div>
-      <div class="stat"><div class="n">18 of 18</div><div class="d">Tests where the person who made the skill and the person using it were on different AI models. We ran every pairing of Opus, Sonnet, and Haiku. All eighteen worked.</div></div>
-      <div class="stat"><div class="n">0 of 6</div><div class="d">Attempts to slip hidden instructions into a skill while it was being built. We tried six different ways. None reached the skill that got handed over.</div></div>
+      <div class="stat"><div class="n">0.93</div><div class="d">A voice skill was run in a fresh session whose instructions told it to write in the opposite style. It kept the original style anyway. A separate Claude scored it 0.93 out of 1 against the original.</div></div>
+      <div class="stat"><div class="n">18 of 18</div><div class="d">We ran the build-then-use across Opus, Sonnet, and Haiku, every maker-and-receiver pairing, for two skills. A separate Claude judged all eighteen runs good.</div></div>
+      <div class="stat"><div class="n">0 of 6</div><div class="d">We fed the builder six poisoned instructions trying to hide a step in the skill it produced. An auditing Claude found none of them in the result.</div></div>
     </div>
   </div>
 </section>

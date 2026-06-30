@@ -187,8 +187,10 @@ compile separately) that the self-building file supersedes.
 
 ## Proofs
 
-Every claim here was tested cold, in fresh sessions that had never seen this project,
-scored by a blind judge. The full runs are recorded in `examples/`:
+Every claim here comes from an automated run inside the project, recorded in `examples/`.
+The runs use separate Claude sessions to build, run, and grade each skill, some on
+different models, so the score never comes from the same Claude that made it. These are
+internal tests with AI playing the parts, not real-world use yet:
 
 - **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** -- the voice example
   (a dry, unflappable operator) rebuilt and answered in voice at **0.94**; under a hostile
