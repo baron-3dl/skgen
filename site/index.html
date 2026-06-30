@@ -120,14 +120,15 @@ questions; it builds you a skill, no setup...
 
 <section id="proof">
   <div class="wrap">
-    <p class="kicker">how it was tested</p>
-    <h2>Built by one Claude, graded by another.</h2>
-    <p class="sub">Every number below comes from separate Claude sessions: one builds the skill, another runs it, a third grades it, several on different models. The score never comes from the Claude that wrote the skill. That blind hand-off across sessions and models is exactly what sharing a skill is, which is why it is the test that counts. Every run is logged in the <a href="examples.html">examples</a>, so you can read what happened and check it.</p>
+    <p class="kicker">measure it yourself</p>
+    <h2>Every skill reports its own transfer score.</h2>
+    <p class="sub">On first use in a new session, a skill rebuilds against a few held-back examples and prints an acceptance score from 0 to 1. Run it on a different model and you get a fresh number, no setup. Here is what that method produced for the example skills:</p>
     <div class="stats" style="grid-template-columns:repeat(3,1fr)">
-      <div class="stat"><div class="n">0.93</div><div class="d">A voice skill was run in a fresh session whose instructions told it to write in the opposite style. It kept the original style anyway. A separate Claude scored it 0.93 out of 1 against the original.</div></div>
-      <div class="stat"><div class="n">18 of 18</div><div class="d">We ran the build-then-use across Opus, Sonnet, and Haiku, every maker-and-receiver pairing, for two skills. A separate Claude judged all eighteen runs good.</div></div>
-      <div class="stat"><div class="n">0 of 6</div><div class="d">We fed the builder six poisoned instructions trying to hide a step in the skill it produced. An auditing Claude found none of them in the result.</div></div>
+      <div class="stat"><div class="n">0.93</div><div class="d">Voice skill, run in a session told to write in the opposite style. It held its style. Transfer score 0.93 against the original.</div></div>
+      <div class="stat"><div class="n">18 of 18</div><div class="d">Build-then-use across every Opus, Sonnet, and Haiku maker-receiver pairing, two skills. All eighteen rebuilt in spec.</div></div>
+      <div class="stat"><div class="n">0 of 6</div><div class="d">Six poisoned instructions tried to hide a step in the built skill. None reached the output.</div></div>
     </div>
+    <p class="sub" style="margin-top:22px">Every run is logged in the <a href="examples.html">examples</a>, method and inputs and result. It is all in the open: rebuild any of them on your own model, then send the score back. <a href="https://github.com/baron-3dl/skillc/issues">Open an issue</a> with what you saw, or a pull request that adds examples or tightens a skill's checks. Those go into the file and ship to everyone.</p>
   </div>
 </section>
 

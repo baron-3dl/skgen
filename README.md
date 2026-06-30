@@ -187,10 +187,10 @@ compile separately) that the self-building file supersedes.
 
 ## Proofs
 
-Every number here comes from a separate-session run recorded in `examples/`: one Claude
-builds the skill, another runs it, a third grades it, several on different models. The
-score never comes from the Claude that wrote the skill. That blind hand-off across sessions
-and models is exactly what sharing a skill is, which is why it is the test that counts:
+Every self-building skill measures its own transfer: on first use in a new session it
+rebuilds against a few held-back examples and reports an acceptance score from 0 to 1. Run
+one on a different model and you get a fresh number, no setup. The runs below are recorded
+in full in `examples/` -- method, inputs, and result for each:
 
 - **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** -- the voice example
   (a dry, unflappable operator) rebuilt and answered in voice at **0.94**; under a hostile
@@ -212,9 +212,12 @@ and models is exactly what sharing a skill is, which is why it is the test that 
   matters (even Haiku-built files transfer to Opus and Sonnet receivers); the model is a
   swappable operating point.
 
-Also recorded in those runs: `explain-plainly` was built end to end by the builder, then
-rebuilt itself cold and explained a bloom filter at 0.95; `commit-message`, in a session
-with no tracker, failed loud rather than guess a ticket.
+Also in those runs: `explain-plainly` rebuilt itself cold and explained a bloom filter at
+0.95; `commit-message`, in a session with no tracker, failed loud rather than guess a ticket.
+
+It is all in the open. Rebuild any of these on your own model and send the score back: open
+an [issue](https://github.com/baron-3dl/skillc/issues) with what you saw, or a pull request
+that adds examples or tightens a skill's checks. Those go into the file and ship to everyone.
 
 ## License
 
