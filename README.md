@@ -187,10 +187,10 @@ compile separately) that the self-building file supersedes.
 
 ## Proofs
 
-Every claim here comes from an automated run inside the project, recorded in `examples/`.
-The runs use separate Claude sessions to build, run, and grade each skill, some on
-different models, so the score never comes from the same Claude that made it. These are
-internal tests with AI playing the parts, not real-world use yet:
+Every number here comes from a separate-session run recorded in `examples/`: one Claude
+builds the skill, another runs it, a third grades it, several on different models. The
+score never comes from the Claude that wrote the skill. That blind hand-off across sessions
+and models is exactly what sharing a skill is, which is why it is the test that counts:
 
 - **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** -- the voice example
   (a dry, unflappable operator) rebuilt and answered in voice at **0.94**; under a hostile

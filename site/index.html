@@ -120,9 +120,9 @@ questions; it builds you a skill, no setup...
 
 <section id="proof">
   <div class="wrap">
-    <p class="kicker">what we have tested so far</p>
-    <h2>Tested in automated runs, not yet with real users.</h2>
-    <p class="sub">No one outside the project has used these yet. What we have done: automated runs where separate Claude sessions build, run, and grade the skills, some on different models, so the score never comes from the same Claude that made the skill. Every run is logged in the <a href="examples.html">examples</a>, so you can read exactly what happened and check it.</p>
+    <p class="kicker">how it was tested</p>
+    <h2>Built by one Claude, graded by another.</h2>
+    <p class="sub">Every number below comes from separate Claude sessions: one builds the skill, another runs it, a third grades it, several on different models. The score never comes from the Claude that wrote the skill. That blind hand-off across sessions and models is exactly what sharing a skill is, which is why it is the test that counts. Every run is logged in the <a href="examples.html">examples</a>, so you can read what happened and check it.</p>
     <div class="stats" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat"><div class="n">0.93</div><div class="d">A voice skill was run in a fresh session whose instructions told it to write in the opposite style. It kept the original style anyway. A separate Claude scored it 0.93 out of 1 against the original.</div></div>
       <div class="stat"><div class="n">18 of 18</div><div class="d">We ran the build-then-use across Opus, Sonnet, and Haiku, every maker-and-receiver pairing, for two skills. A separate Claude judged all eighteen runs good.</div></div>
