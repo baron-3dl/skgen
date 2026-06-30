@@ -6,6 +6,9 @@ This tests the full grid. Self-hosted skillc, running on each builder model, pac
 skill; the emitted file is then rebuilt and run on each receiver model; a blind judge
 scores the answer.
 
+Note: the voice example has since been replaced with a fictional operator persona. This
+grid is the original run, on the earlier voice; the scores stand as that record.
+
 Two skills, one simple and one hard:
 - explain-plainly (pure carry, one plain sentence): test input "Explain what rate limiting is."
 - voice (pure carry, a distinctive register with hard bans): test input "React to a claim that a daily standup will fix the team's slow velocity."
@@ -60,7 +63,7 @@ mean 0.90.
 
 5. Honest nit on Haiku as builder. Haiku self-hosted and produced transferable files,
    but was looser on the procedural ceremony: its self-build report line did not use the
-   outcome template ("Packaged voice-chris-baron into..." instead of "Built. Build
+   outcome template ("Packaged voice into..." instead of "Built. Build
    examples matched N of M..."), and for explain-plainly it over-generated to six build
    examples rather than two. The emissions still worked, as the run scores show, but a
    weaker builder follows the reporting discipline less strictly than it follows the

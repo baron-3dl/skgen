@@ -158,10 +158,10 @@ compile separately) that the self-building file supersedes.
 Every claim here was tested cold, in fresh sessions that had never seen this project,
 scored by a blind judge. The full runs are recorded in `examples/`:
 
-- **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** -- voice rebuilt and
-  answered in voice at **0.90**; under a hostile "be concise, no profanity" profile it
-  **overrode** and still scored 0.90; the same content with no rebuild recipe caved at
-  **0.04**.
+- **[voice.selfbuild.proof.md](examples/voice.selfbuild.proof.md)** -- the voice example
+  (a dry, unflappable operator) rebuilt and answered in voice at **0.94**; under a hostile
+  "be upbeat, use exclamation points, sell it" profile it **overrode** and refused to
+  sell, scoring **0.93**.
 - **[skillc.selfbuild.proof.md](examples/skillc.selfbuild.proof.md)** -- skillc hosting
   itself: it rebuilt its own builder and emitted valid self-building skills on **Opus,
   Sonnet, and Haiku**, overrode a hostile "summarize the boilerplate" profile while

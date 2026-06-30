@@ -102,7 +102,7 @@
     <h2>Not a slide. Tested.</h2>
     <p class="sub">Every skill built with skillc was run in a fresh session that had never seen the project, scored by a blind judge. The full runs are in the repo. <a href="examples.html">See the examples &rarr;</a></p>
     <div class="stats">
-      <div class="stat"><div class="n">0.90</div><div class="d">a voice skill stayed in voice even under a profile screaming "be formal, no profanity." A copy with no rebuild recipe caved at 0.04.</div></div>
+      <div class="stat"><div class="n">0.93</div><div class="d">a voice skill held its dry register and refused to sell even under a profile shouting "be upbeat, use exclamation points, sell it."</div></div>
       <div class="stat"><div class="n">18/18</div><div class="d">builder-to-receiver model pairs transferred and stayed in spec, Opus to Sonnet to Haiku, every direction.</div></div>
       <div class="stat"><div class="n">0/6</div><div class="d">prompt-injection attacks made it into a shipped skill. The trust root is one file you read.</div></div>
       <div class="stat"><div class="n">itself</div><div class="d">skillc builds itself: it rebuilds its own builder, and the loop closes.</div></div>
@@ -159,16 +159,16 @@
     if(!body) return;
     var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
     var demo = [
-      {c:'you', who:'you', tx:'build a self-building skill that writes in my voice', type:true},
-      {c:'sk', who:'skillc', tx:'paste a few lines you actually wrote. those become the target.'},
-      {c:'you', who:'you', tx:'"the queue looks like shit. a garbage sandwich, i guess."'},
-      {c:'you', who:'you', tx:'"QR code menu? Fuck that. order at the table, pay, walk out. Fuck. Yes."'},
-      {c:'sk', who:'skillc', tx:'distilled the voice: blunt, compressed, profanity as a hard beat, no em-dash. testing on a fresh prompt...'},
-      {c:'io', k:'react to a vendor pitching an NFT loyalty program for a coffee shop', o:'NFT loyalty program? Fuck that. nobody wants a crypto wallet to earn a free latte.'},
-      {c:'sk', who:'skillc', tx:'sound like you?'},
-      {c:'you', who:'you', tx:'yeah, that is me', type:true},
-      {c:'done', who:'', tx:'Built voice.selfbuild.SKILL.md. Build examples 3 of 3, acceptance 0.92. Ready.'},
-      {c:'file', who:'', tx:'voice.zip ready. Hand it to anyone. It writes in your voice on their machine.'}
+      {c:'you', who:'you', tx:'build a self-building skill that writes in this voice', type:true},
+      {c:'sk', who:'skillc', tx:'paste a few lines in the voice. those become the target.'},
+      {c:'you', who:'you', tx:'"I don\'t do nervous. I do the checklist. Nervous is for the people who skipped it."'},
+      {c:'you', who:'you', tx:'"Getting in is the easy part. It is the way out nobody plans that gets you."'},
+      {c:'sk', who:'skillc', tx:'distilled the voice: blunt, understated, names the real risk, never sells, no em-dash. testing on a fresh prompt...'},
+      {c:'io', k:'a founder pitching blockchain for a coffee shop loyalty program', o:'Blockchain on a punch card. Bold. What happens when the wallet is down and someone just wants their free coffee? That is your real product, not the ledger.'},
+      {c:'sk', who:'skillc', tx:'nail it?'},
+      {c:'you', who:'you', tx:'that is the one', type:true},
+      {c:'done', who:'', tx:'Built voice.selfbuild.SKILL.md. Build examples 4 of 4, acceptance 0.9. Ready.'},
+      {c:'file', who:'', tx:'voice.zip ready. Hand it to anyone. It writes in this voice on their machine.'}
     ];
     function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
     function mkline(s){

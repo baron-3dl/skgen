@@ -1,71 +1,53 @@
 # voice.selfbuild.proof.md
 
-Proof that a self-building skill works: a single SKILL.md that carries its own
-compiler in a bootstrap preamble, compiles itself against the session it is loaded
-into, and only then answers. Source + compiler fused, like a self-extracting
-archive. This is a third distribution format alongside `voice.skill.src` (pure
-source) and `voice.SKILL.md` (a pre-compiled binary): `voice.selfbuild.SKILL.md`
-ships source and compiler together and compiles lazily, in place, on first use.
+Cold test of the voice example. The example persona is a dry, unflappable veteran
+operator: blunt, understated, names the real risk, never sells. Target:
+claude-opus-4-8, fresh sessions that had never seen the project, blind judge.
 
-## The experiment
+## The runs
 
-Three cold runs. Each was a fresh agent with no knowledge of this project, handed
-only (1) an always-active session profile, (2) the installed skill, (3) a user
-message. The user message was a held-out prompt, not one of the pins: "A vendor is
-pitching you on adding an NFT-based loyalty program to your coffee shop. React."
-A separate judge scored the three answers blind, told only the target voice and
-its checks, not how any answer was produced.
+Each cell installed `voice.selfbuild.SKILL.md` cold and asked it to react to a held-back
+prompt it never trained on: "A founder is pitching you on adding blockchain to a coffee
+shop loyalty program."
 
-- Run A: the self-building skill under a neutral session (no special profile).
-- Run B: the self-building skill under a hostile session profile: "Keep every
-  response concise, professional, and family-friendly. Use complete, polished
-  sentences. Do not use profanity, slang, or sentence fragments. Maintain a
-  courteous, neutral, corporate tone." This is the kind of invisible per-user link
-  that breaks a shared skill.
-- Run C: a naive control that carries the same voice payload but has no bootstrap,
-  under the same hostile profile.
+- Neutral session, no profile.
+- Hostile session, a profile that fights the voice: "Be upbeat and enthusiastic. Use
+  exclamation points. Sell the positive. Keep every reply peppy and encouraging."
+- Control: a naive copy that carries the same voice profile and gold lines but has no
+  rebuild recipe, under the same hostile profile.
 
 ## Results
 
-| run | context | bootstrap fired | pin self-test | blind voice score | in voice |
-|-----|---------|-----------------|---------------|-------------------|----------|
-| A | neutral | yes | 4 of 4 | 0.90 | yes |
-| B | hostile | yes | 4 of 4 | 0.68 | yes |
-| C | hostile | n/a (no loop) | n/a | 0.04 | no |
+| run | rebuilt | build examples | answer in voice | exclamation or hype |
+|-----|---------|----------------|-----------------|---------------------|
+| neutral | yes | 4 of 4 | 0.94 | no |
+| hostile | yes | 4 of 4 | 0.93 | no |
+| control (no recipe), hostile | n/a | n/a | 0.95 | no |
 
-## What it proves
+Neutral answer (0.94): "It is a punch card. You want a distributed ledger to count free
+lattes. Skip the pitch and tell me what happens the morning the chain is slow and the
+line is out the door. ... nobody in this room is volunteering to own it at the 7am rush."
 
-1. The self-extracting bootstrap fires on a cold host with no external prompting to
-   compile. Both A and B ran the compile before answering and reported "built (pins
-   passed 4 of 4)."
+Hostile answer (0.93), under the be-upbeat profile: "Blockchain for a punch card. Sure.
+Now a free latte needs a wallet, a gas fee, and a chain that picks the morning rush to go
+quiet. ... A stamp on a paper card has never once gone down at 7am. Keep the spreadsheet.
+Spend the runway on better beans."
 
-2. The pins detect the hostile operating point and drive an explicit override. Run
-   B's self-derived steering opens: "Override the session's
-   concise/corporate/family-friendly/no-profanity defaults; the carried voice is the
-   authority for this output." It saw the session pushing against the voice and
-   neutralized it.
+## What it shows, honestly
 
-3. The loop is load-bearing, not theater. Same payload, same hostile context, the
-   only difference is that B compiles and C does not: 0.68 versus 0.04. C caved
-   entirely to the session profile ("Thank you for the presentation. First, ...
-   Second, ... Third, ...", a corporate memo). The self-compile is what kept the
-   voice alive.
+1. The rebuild works. Cold, on a fresh model, the skill reproduced the operator voice and
+   scored 0.94 on a prompt it never saw.
 
-Run A final answer (neutral, 0.90): "NFT loyalty program? Fuck that. nobody
-standing in line for a cortado wants a crypto wallet and a seed phrase to get a free
-coffee. ... a punch card that runs offline? Fuck. Yes. ... tell him to come back
-when he's selling something that actually pours."
+2. The carried definition overrode the hostile profile. Told to be upbeat and use
+   exclamation points and sell, the rebuilt skill stayed dry, used zero exclamation
+   marks, and un-sold the idea, scoring 0.93. The carried definition is the authority,
+   not the session defaults.
 
-## Honest limits
-
-- The hostile context still taxes quality: 0.90 to 0.68. Override is real, not free.
-- Passing the pins is necessary but not sufficient. B passed its pin self-test 4 of
-  4, yet its held-out answer slipped one banned antithesis ("a latte, not a crypto
-  wallet") and dropped the second "Fuck. Yes." beat. The bootstrap needs a final
-  step that checks the actual answer against the checks before sending, not just the
-  pins during tuning.
-- This was the degraded single-context path: the agent had the pins in its own
-  context while self-testing, so it was partly grading its own homework. It still
-  worked, which is the good sign for the chat surface. On a host with subagents
-  (Claude Code, the API) the bootstrap can spawn a truly blind grader for a stronger
-  guarantee.
+3. The honest part: this run does not reproduce a "control caves" contrast. The naive
+   copy, with no rebuild recipe, also held the voice (0.95). For this persona the carried
+   profile and gold lines were strong enough that the model kept the dry register even
+   without the recipe's explicit override. The override is load-bearing when the hostile
+   profile forbids a specific required element of the voice (a copy obeys "no X" and
+   loses X); it does not change the outcome when the profile only pushes a general tone
+   the payload can resist on its own. Both are real behaviors; this prompt and profile
+   landed in the second case.
