@@ -30,21 +30,56 @@
   <div class="wrap">
     <span class="ey">self-building skills</span>
     <h1>Skills that don't break<br>when you share them.</h1>
-    <p class="lede">You got Claude doing something just right. You want your team's Claude to do it the same way, but it falls flat for them, because it quietly leaned on <b>your</b> setup. skillc makes a skill you can hand over, and it <b>sets itself up</b> on their side so it works the same. No files, no install.</p>
+    <p class="lede">You got Claude doing something just right. You want your team's Claude to do it the same way, but it falls flat for them, because it quietly leaned on <b>your</b> setup. skillc is a <b>skill that makes skills</b>: install it, tell it what you want, and it hands you a new skill you can give to anyone.</p>
 
     <div class="install" id="get">
       <div class="install-top">
-        <div class="h">Make a skill with skillc <span>no install, runs in any chat</span></div>
+        <div class="h">Get skillc <span>install once, then just ask</span></div>
+        <div class="toggle" role="tablist">
+          <button id="t-web" class="on" onclick="pick('web')">claude.ai</button>
+          <button id="t-code" onclick="pick('code')">Claude Code</button>
+          <button id="t-oc" onclick="pick('oc')">OpenCode</button>
+          <button id="t-paste" onclick="pick('paste')">No install</button>
+        </div>
       </div>
-      <p class="hint" style="margin:2px 0 14px">Open Claude. Paste this in. Answer its questions. It hands you a skill you can send to anyone.</p>
-      <button class="cmd" id="wizCopy">
-        <span class="badge">click to copy the whole prompt</span>
-You are a friendly skill maker. Ask me one question at a time,
-in plain words. We will turn something I want you to do into a
-skill I can hand to other people, so you do it for them too...
+
+      <div class="panel on" id="p-web">
+        <div class="steps3">
+          <div class="n">1</div><div class="t"><b>Turn on Code Execution.</b> Settings, then Capabilities. A one-time toggle, any plan.</div>
+          <div class="n">2</div><div class="t"><b>Download skillc:</b></div>
+        </div>
+        <div class="dl"><a href="https://github.com/baron-3dl/skillc/releases/latest/download/skillc.zip">skillc.zip <span class="ar">&darr;</span></a></div>
+        <div class="steps3" style="margin-top:16px">
+          <div class="n">3</div><div class="t"><b>Upload it.</b> Settings, then Capabilities, then Skills, then drop the zip in.</div>
+        </div>
+      </div>
+
+      <div class="panel" id="p-code">
+        <button class="cmd" data-copy="/plugin marketplace add baron-3dl/skillc&#10;/plugin install skillc@skillc">
+          <span class="badge">click to copy</span>
+<span class="k">/plugin</span> marketplace add baron-3dl/skillc
+<span class="k">/plugin</span> install skillc@skillc</button>
+        <p class="hint">Paste into Claude Code.</p>
+      </div>
+
+      <div class="panel" id="p-oc">
+        <button class="cmd" data-copy="unzip skillc.zip -d ~/.claude/skills/">
+          <span class="badge">click to copy</span>
+unzip skillc.zip -d ~/.claude/skills/</button>
+        <p class="hint">OpenCode reads <span class="mono">~/.claude/skills/</span> automatically. <a href="https://github.com/baron-3dl/skillc/releases/latest/download/skillc.zip">Get skillc.zip</a> first.</p>
+      </div>
+
+      <div class="panel" id="p-paste">
+        <button class="cmd" id="wizCopy">
+          <span class="badge">click to copy the whole prompt</span>
+No install. Paste this into any Claude chat and answer its
+questions; it builds you a skill, no setup...
 <span class="c">[click to copy the full prompt]</span></button>
-      <p class="hint">It gives you a block of text: that is your skill. Send it to anyone, and they paste it into a chat and Claude does it their way too. Got one someone sent you? Just paste it into a new chat.</p>
+        <p class="hint">The fallback if you would rather not install. Same builder, runs in a chat.</p>
+      </div>
     </div>
+
+    <p class="hint" style="margin:16px 2px 0">Then just ask: <span class="mono">skillc, make me a skill that writes my emails in my voice</span>. It builds you a skill; send it to anyone and they install it the same way.</p>
 
     <div class="cta">
       <a class="btn p" href="#use">Watch it build a skill</a>
@@ -96,36 +131,8 @@ skill I can hand to other people, so you do it for them too...
 <section id="dev">
   <div class="wrap">
     <p class="kicker">for developers</p>
-    <h2>Or package it as an installable plugin.</h2>
-    <p class="sub">Want skills as installable files, a marketplace, version pins, and releases? skillc is a Claude Code plugin marketplace too. One note: on claude.ai, uploaded skills can only be shared on Team or Enterprise plans, so the paste method above is the one that works for everyone.</p>
-    <div class="install" style="margin-top:24px">
-      <div class="install-top">
-        <div class="h">Install the builder</div>
-        <div class="toggle" role="tablist">
-          <button id="t-code" class="on" onclick="pick('code')">Claude Code</button>
-          <button id="t-web" onclick="pick('web')">claude.ai</button>
-        </div>
-      </div>
-      <div class="panel on" id="p-code">
-        <button class="cmd" data-copy="/plugin marketplace add baron-3dl/skillc&#10;/plugin install skillc@skillc">
-          <span class="badge">click to copy</span>
-<span class="k">/plugin</span> marketplace add baron-3dl/skillc
-<span class="k">/plugin</span> install skillc@skillc</button>
-        <p class="hint">Paste into Claude Code. That installs the builder.</p>
-      </div>
-      <div class="panel" id="p-web">
-        <div class="steps3">
-          <div class="n">1</div><div class="t"><b>Turn on code execution.</b> Settings, then Capabilities (needs a plan with Skills).</div>
-          <div class="n">2</div><div class="t"><b>Download the builder:</b></div>
-        </div>
-        <div class="dl">
-          <a href="https://github.com/baron-3dl/skillc/releases/latest/download/skillc.zip">skillc builder <span class="ar">&darr;</span></a>
-        </div>
-        <div class="steps3" style="margin-top:16px">
-          <div class="n">3</div><div class="t"><b>Upload it.</b> Settings, then Capabilities, then Skills, then drop the zip in.</div>
-        </div>
-      </div>
-    </div>
+    <h2>It is a marketplace, too.</h2>
+    <p class="sub">The Claude Code install above uses skillc's plugin marketplace, so you can version skills and ship them as files. The worked example skills are a separate plugin, <span class="mono">skillc-examples</span> (voice, explain-plainly, commit-message): install with <span class="mono">/plugin install skillc-examples@skillc</span>. One honest note: on claude.ai, uploaded skills only share through the platform on Team or Enterprise plans, so sending the file (or the paste path) is what works for everyone. The format, the builder, and the rebuild recipe are all in the <a href="https://github.com/baron-3dl/skillc">repo</a>.</p>
   </div>
 </section>
 
@@ -143,11 +150,11 @@ skill I can hand to other people, so you do it for them too...
 
 <script>
   function pick(which){
-    var code = which === 'code';
-    document.getElementById('p-code').classList.toggle('on', code);
-    document.getElementById('p-web').classList.toggle('on', !code);
-    document.getElementById('t-code').classList.toggle('on', code);
-    document.getElementById('t-web').classList.toggle('on', !code);
+    ['web','code','oc','paste'].forEach(function(k){
+      var on = (k === which);
+      var p = document.getElementById('p-'+k); if (p) p.classList.toggle('on', on);
+      var t = document.getElementById('t-'+k); if (t) t.classList.toggle('on', on);
+    });
   }
   var WIZARD = `You are skillc, a friendly skill builder. I am not technical, so use plain words, no jargon, and ask me ONE short question at a time and wait for my answer. We are going to turn something I want you to do into a "skill": a block of text I can hand to other people so you do the same thing for them.
 
