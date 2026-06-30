@@ -69,8 +69,23 @@ Two honest limits on web chat. The self-build runs in a single conversation, so 
 grades against examples it can see (blindness is softer than in Claude Code, which can
 spawn a separate grader). And binds resolve only against connected tools, not local
 command-line tools, so a pure-carry skill (voice, explain-plainly) transfers fully while a
-skill that binds a local-only tool fails loud there, by design. Authoring new skills is
-best done in Claude Code, where the builder can run your working skill in your real setup.
+skill that binds a local-only tool fails loud there, by design.
+
+**Making a skill on claude.ai, and sharing it out.** You can author there too. Install
+`skillc.zip` (the builder), then in the chat ask it to build a self-building skill from
+the one you have been iterating; it harvests examples (you approve each), and with code
+execution on it writes the finished `<name>.selfbuild.SKILL.md` to the session for you to
+download. Pure-carry skills build fully here, since your account is the operating point
+they should match; a skill that binds a local tool you can still author (you declare the
+bind in plain words), you just cannot test that bind without the tool, which is where
+Claude Code helps.
+
+Sharing it out is the part claude.ai does not do for you: there is no publish button and
+no skill gallery. You distribute the file yourself, either by handing it to people (they
+upload it to their own claude.ai or drop it in Claude Code), or by putting it in a GitHub
+repo with a `.claude-plugin/marketplace.json` (as this repo does) so Claude Code users
+add it with `/plugin marketplace add you/repo` and claude.ai users download it from the
+release. claude.ai is make-and-use; GitHub is the distribution layer.
 
 ---
 
