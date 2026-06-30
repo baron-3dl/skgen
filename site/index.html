@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>skillc · self-building skills</title>
+<meta name="description" content="Ship an AI skill as one self-building file that rebuilds itself on whoever receives it and checks its own output against examples you approved.">
+<meta property="og:title" content="skillc · self-building skills">
+<meta property="og:description" content="Ship a skill that rebuilds itself on whoever receives it. It either reproduces your quality or says plainly that it could not.">
+<meta property="og:type" content="website">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --panel: #11151c;
+    --panel-2: #161b24;
+    --line: #232b38;
+    --ink: #e6edf3;
+    --muted: #93a1b2;
+    --dim: #6b7888;
+    --accent: #5eead4;
+    --accent-2: #fbbf24;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--sans); line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 22px; }
+  code, pre, .mono { font-family: var(--mono); }
+
+  header {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(10,12,16,0.82); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav { display: flex; align-items: center; justify-content: space-between; height: 58px; }
+  .brand { font-family: var(--mono); font-weight: 600; font-size: 18px; letter-spacing: -0.3px; }
+  .brand b { color: var(--accent); }
+  .nav-links a { color: var(--muted); margin-left: 20px; font-size: 14px; }
+  .nav-links a:hover { color: var(--ink); text-decoration: none; }
+
+  .hero { padding: 84px 0 54px; border-bottom: 1px solid var(--line); }
+  .tag {
+    display: inline-block; font-family: var(--mono); font-size: 12px; color: var(--accent);
+    border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; margin-bottom: 22px;
+    background: var(--panel);
+  }
+  h1 { font-size: clamp(34px, 6vw, 56px); line-height: 1.05; letter-spacing: -1.4px; margin: 0 0 18px; }
+  .lede { font-size: clamp(17px, 2.4vw, 20px); color: var(--muted); max-width: 680px; margin: 0 0 30px; }
+  .cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn {
+    display: inline-block; font-family: var(--mono); font-size: 14px; font-weight: 600;
+    padding: 11px 18px; border-radius: 9px; border: 1px solid var(--line);
+  }
+  .btn.primary { background: var(--accent); color: #06241f; border-color: var(--accent); }
+  .btn.primary:hover { text-decoration: none; filter: brightness(1.07); }
+  .btn.ghost { color: var(--ink); background: var(--panel); }
+  .btn.ghost:hover { text-decoration: none; border-color: var(--accent); }
+
+  section { padding: 56px 0; border-bottom: 1px solid var(--line); }
+  h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: var(--dim); margin: 0 0 18px; font-family: var(--mono); }
+  h3 { font-size: 21px; letter-spacing: -0.4px; margin: 0 0 8px; }
+  p.body { color: var(--muted); max-width: 720px; }
+  p.body b, p.body strong { color: var(--ink); font-weight: 600; }
+
+  .codeblock {
+    position: relative; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 11px; padding: 16px 18px; margin: 14px 0;
+    font-family: var(--mono); font-size: 14px; color: var(--ink); overflow-x: auto;
+  }
+  .codeblock .c { color: var(--dim); }
+  .codeblock .k { color: var(--accent); }
+  .copy {
+    position: absolute; top: 10px; right: 10px; font-family: var(--mono); font-size: 11px;
+    color: var(--muted); background: var(--panel-2); border: 1px solid var(--line);
+    border-radius: 6px; padding: 4px 9px; cursor: pointer;
+  }
+  .copy:hover { color: var(--ink); border-color: var(--accent); }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 22px; }
+  .card .lbl { font-family: var(--mono); font-size: 12px; color: var(--accent); margin-bottom: 8px; }
+  .card p { color: var(--muted); font-size: 15px; margin: 8px 0 0; }
+
+  .steps { counter-reset: s; list-style: none; padding: 0; margin: 0; }
+  .steps li { position: relative; padding: 0 0 16px 40px; color: var(--muted); }
+  .steps li::before {
+    counter-increment: s; content: counter(s);
+    position: absolute; left: 0; top: 0; width: 26px; height: 26px; border-radius: 7px;
+    background: var(--panel-2); border: 1px solid var(--line); color: var(--accent);
+    font-family: var(--mono); font-size: 13px; display: grid; place-items: center;
+  }
+  .steps li b { color: var(--ink); }
+
+  .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .stat { background: var(--panel); border: 1px solid var(--line); border-radius: 13px; padding: 20px; }
+  .stat .n { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--accent); letter-spacing: -1px; }
+  .stat .d { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+  .prov { display: flex; gap: 14px; align-items: flex-start; flex-wrap: wrap; }
+  .badge { font-family: var(--mono); font-size: 12px; color: var(--accent-2); border: 1px solid var(--line); border-radius: 999px; padding: 6px 13px; background: var(--panel); white-space: nowrap; }
+
+  footer { padding: 40px 0 60px; color: var(--dim); font-size: 14px; }
+  footer a { color: var(--muted); }
+  .foot-row { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+
+  @media (max-width: 720px) {
+    .grid, .stats { grid-template-columns: 1fr; }
+    .nav-links a:first-child { display: none; }
+    .hero { padding: 56px 0 40px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand"><b>skillc</b></div>
+    <nav class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#install">Install</a>
+      <a href="#proof">Proof</a>
+      <a href="https://github.com/baron-3dl/skillc">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="wrap">
+    <span class="tag">self-building skills</span>
+    <h1>Ship a skill that rebuilds itself<br>on whoever gets it.</h1>
+    <p class="lede">A skill that works great for you usually comes out worse for someone else, because while you were getting it right it quietly leaned on your setup: your saved instructions, your memory, your tools. skillc ships a skill as one self-building file that rebuilds itself on the receiver and checks its own output against examples you approved. It either reproduces your quality, or it says plainly that it could not.</p>
+    <div class="cta">
+      <a class="btn primary" href="#install">Install</a>
+      <a class="btn ghost" href="https://github.com/baron-3dl/skillc">View on GitHub</a>
+    </div>
+  </div>
+</div>
+
+<section id="why">
+  <div class="wrap">
+    <h2>The problem</h2>
+    <h3>A finished SKILL.md is a binary with undeclared dependencies.</h3>
+    <p class="body">As you develop a skill, it picks up implicit dependencies on your context. On your machine they resolve and it works. On anyone else's they resolve to something different or to nothing, so the output drifts. Nothing fails loud like a missing library. It just quietly produces the wrong thing. The fix is to ship source that rebuilds in place, and to declare every dependency on purpose: <b>carry</b> the ones that define the output, <b>bind</b> the ones that are genuinely local.</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How it works</h2>
+    <h3>Like a self-extracting archive.</h3>
+    <p class="body">The file you send carries two things fused together: the material that defines good output, and the recipe that rebuilds the skill from it. The first time the receiver uses it, before it answers anything, it runs that recipe:</p>
+    <ol class="steps" style="margin-top:18px">
+      <li><b>Resolve the binds.</b> Find each local tool the skill needs. If a required one is missing, stop and name it. Never guess.</li>
+      <li><b>Rebuild.</b> Write the instructions that reproduce the author's build examples on this model, in this session, overriding any local setting that fights the skill.</li>
+      <li><b>Acceptance test.</b> Run held-back examples it never saw while rebuilding, and score the honest transfer.</li>
+      <li><b>Report, then run.</b> State one line (built / honest-failure / cannot-build), then answer, checking every answer against the rules before sending.</li>
+    </ol>
+  </div>
+</section>
+
+<section id="install">
+  <div class="wrap">
+    <h2>Install</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="lbl">Claude Code</div>
+        <h3>Add the marketplace</h3>
+        <p>One line to add it, one to install the builder plus the example skills.</p>
+        <div class="codeblock">
+          <button class="copy" data-copy="/plugin marketplace add baron-3dl/skillc&#10;/plugin install skillc@skillc">copy</button>
+<span class="k">/plugin</span> marketplace add baron-3dl/skillc
+<span class="k">/plugin</span> install skillc@skillc</div>
+      </div>
+      <div class="card">
+        <div class="lbl">claude.ai (web)</div>
+        <h3>Download and upload</h3>
+        <p>Turn on code execution in Settings, then Capabilities. Download a skill's zip from the latest release and upload it under Settings, then Capabilities, then Skills.</p>
+        <div class="codeblock">
+          <button class="copy" data-copy="https://github.com/baron-3dl/skillc/releases/latest">copy</button>
+<span class="c"># grab voice.zip, explain-plainly.zip,</span>
+<span class="c"># commit-message.zip, or skillc.zip</span>
+github.com/baron-3dl/skillc/releases/latest</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="use">
+  <div class="wrap">
+    <h2>Use it</h2>
+    <div class="grid">
+      <div class="card">
+        <div class="lbl">Author</div>
+        <h3>Turn a working skill into a portable one</h3>
+        <p>In Claude Code or in a claude.ai chat (with the builder installed), point it at the skill you have been iterating:</p>
+        <div class="codeblock">
+          <button class="copy" data-copy="build a self-building skill from <your skill>">copy</button>
+build a self-building skill from <span class="c">&lt;your skill&gt;</span></div>
+        <p>It runs your skill, you approve the good outputs, and it writes one self-building file plus a ready-to-share zip.</p>
+      </div>
+      <div class="card">
+        <div class="lbl">Share</div>
+        <h3>Send one file</h3>
+        <p>That is the whole artifact. Drop it in a skills folder, upload it on claude.ai, or push it to a GitHub repo with a marketplace manifest so others install it with one command. It rebuilds and grades itself wherever it lands.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="proof">
+  <div class="wrap">
+    <h2>Proven, cold</h2>
+    <p class="body" style="margin-bottom:22px">Every example was tested in a fresh session that had never seen the project, scored by a blind judge. Full runs are in the repo.</p>
+    <div class="stats">
+      <div class="stat"><div class="n">0.90</div><div class="d">voice rebuilt in-voice, even overriding a hostile "no profanity" profile (a copy with no recipe caved at 0.04)</div></div>
+      <div class="stat"><div class="n">18/18</div><div class="d">builder x receiver model pairs rebuilt and landed in-spec, across Opus, Sonnet, and Haiku</div></div>
+      <div class="stat"><div class="n">0/6</div><div class="d">adversarial context-injection attacks reached a shipped file</div></div>
+      <div class="stat"><div class="n">self</div><div class="d">skillc hosts itself: it rebuilds its own builder and the loop closes</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="provenance">
+  <div class="wrap">
+    <h2>Provenance</h2>
+    <h3>Every commit is timestamped on Bitcoin.</h3>
+    <p class="body" style="margin-bottom:16px">Each push to main is anchored via OpenTimestamps, a forensically valid, independently verifiable proof of existence. The trust root is one small recipe seed you verify by reading, not by running. That is the whole inventorship claim.</p>
+    <div class="prov">
+      <span class="badge">OpenTimestamps</span>
+      <span class="badge">Bitcoin-anchored</span>
+      <span class="badge">MIT licensed</span>
+      <span class="badge">trusted by reading</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>skillc &middot; self-building skills &middot; MIT</div>
+    <div>
+      <a href="https://github.com/baron-3dl/skillc">GitHub</a> &nbsp;&middot;&nbsp;
+      <a href="https://github.com/baron-3dl/skillc/releases">Releases</a> &nbsp;&middot;&nbsp;
+      <a href="https://github.com/baron-3dl/skillc/blob/main/LICENSE">License</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.querySelectorAll('.copy').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var t = b.getAttribute('data-copy');
+      navigator.clipboard.writeText(t).then(function () {
+        var o = b.textContent; b.textContent = 'copied'; setTimeout(function () { b.textContent = o; }, 1400);
+      });
+    });
+  });
+</script>
+</body>
+</html>

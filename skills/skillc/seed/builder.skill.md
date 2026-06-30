@@ -151,6 +151,14 @@ self-contained file the author can ship by dropping it in a skills folder or sen
 it; it carries everything the receiver needs and resolves the rest against the
 receiver at rebuild time.
 
+Then package it for sharing. If this session can write and zip files (a shell or
+code-execution tool is available), put the file in a folder named for the skill as
+`SKILL.md`, zip that folder to `<name>.zip`, and offer it for download. That archive
+drops straight into another person's claude.ai (Settings, then Capabilities, then
+Skills, then upload) or a Claude Code skills folder, with no rezipping. If this session
+cannot write files, emit the file text and tell the author to save it as
+`<name>/SKILL.md` and zip that folder before sharing.
+
 ### 8. Optional pre-ship validation (author side, expensive, once)
 
 If the author wants confidence the file will transfer before they send it, run a

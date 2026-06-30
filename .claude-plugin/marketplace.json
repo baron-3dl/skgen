@@ -10,7 +10,7 @@
       "name": "skillc",
       "source": "./",
       "description": "The skillc builder plus self-building example skills (voice, explain-plainly, commit-message). Author skills that rebuild and test themselves on any model.",
-      "version": "0.1.2"
+      "version": "0.1.3"
     }
   ]
 }
