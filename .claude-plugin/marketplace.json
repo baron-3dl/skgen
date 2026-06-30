@@ -1,0 +1,16 @@
+{
+  "name": "skillc",
+  "owner": {
+    "name": "Chris Baron",
+    "email": "baron@3dl.dev"
+  },
+  "description": "Self-building skills: source that rebuilds itself on whoever receives it.",
+  "plugins": [
+    {
+      "name": "skillc",
+      "source": "./",
+      "description": "The skillc builder plus self-building example skills (voice, explain-plainly, commit-message). Author skills that rebuild and test themselves on any model.",
+      "version": "0.1.1"
+    }
+  ]
+}
