@@ -1,8 +1,16 @@
 # skillc
 
-A skill is a set of instructions that makes Claude do something your way. skillc is a
-skill that makes skills: tell it what you want, and it hands you a new skill you can give
-to anyone, so Claude does it their way too.
+### Skills that don't break when you share them.
+
+> **New here, or not into command lines?** [**Start on the skillc site →**](https://baron-3dl.github.io/skillc/)
+> — a plain-language walkthrough with a live demo. Nothing to install to look. Come back
+> here when you want the details.
+
+You got Claude doing something just right. You share it, and for everyone else it falls
+flat, because it quietly leaned on *your* setup. skillc is a **skill that makes skills**:
+tell it what you want, show it a couple of examples you like, and it hands you one file
+you can send to anyone. Their Claude sets it up for itself and reports how well it
+transferred.
 
 ## Get skillc
 
@@ -26,13 +34,15 @@ Just ask, in plain words:
     skillc, make me a skill that writes my emails in my voice
 
 It asks a few questions (what you want, a couple of examples you like, your taste), shows
-you a test, and you say "yes" or "tweak that." Then it hands you a new skill.
+you a test, and you say "yes" or "tweak that." Then it hands you the finished skill as
+one file.
 
 ## Share what you make
 
-Send the skill it made you to anyone. They install it the same way you installed skillc
-above, and their Claude does it their way too. The whole loop is just install a skill, use
-a skill, both times.
+Send the file to anyone. They install it the same way you installed skillc above. The
+first time they use it, it sets itself up against their Claude, grades itself on examples
+you approved, and tells them how well it transferred. If it cannot work there, it says so
+instead of quietly doing the wrong thing.
 
 ## No install? Paste it instead
 
@@ -127,34 +137,34 @@ release. claude.ai is make-and-use; GitHub is the distribution layer.
 
 ## Why this exists
 
-A finished `SKILL.md` behaves like a dynamically-linked binary: as you develop it, it
-picks up undeclared dependencies on your context, and on anyone else's machine those
-resolve to something different or to nothing. It does not fail loud like a missing
-shared library; it just quietly produces the wrong thing. The fix is to ship source
-that rebuilds in place, declaring every dependency on purpose: carry the ones that
-define the output (bundled in, the same everywhere), bind the ones that are genuinely
-local (resolved against the receiver, and failed loud when missing).
+A hand-tuned skill picks up hidden dependencies on your setup: your tools, your memory,
+your custom instructions. It behaves like a dynamically-linked binary. On anyone else's
+machine those dependencies resolve to something different, or to nothing, and it does
+not fail loud like a missing shared library; it quietly produces the wrong thing. The
+fix is to ship source that rebuilds in place, with every dependency declared on purpose:
+**carry** what defines the output (bundled in, the same everywhere), **bind** what is
+genuinely local (resolved against the receiver, failed loud when missing).
 
 ## How it works
 
-**The author (one sitting, one manual step).** You give the builder a few real inputs and
-an output for each, however you have them: by running a skill you already use, by pasting
-examples you like, or by letting it draft and correcting it. You approve, edit, or reject
-each (you never write a gold answer from scratch;
-you bless the good ones). Approved pairs become **build examples**, grouped by behavioral
-move; a few novel ones are held back as **acceptance examples**. The quality you get is
-proportional to how many good examples you put in. That is your lever.
+**The author approves examples.** You give the builder a few real inputs and the output
+you want for each: run a skill you already use, paste examples you like, or let it draft
+and correct it. You never write a gold answer from scratch; you bless the good ones.
+Approved pairs become **build examples**, grouped by behavioral move; a few are held
+back as **acceptance examples**. More good examples in, better skill out. That is your
+lever.
 
 **What gets shipped** is one file containing: the definition of good output inlined in
 full; any local dependencies as binds in plain words; the build examples; the held-back
 acceptance examples; the checks (the hard rules, kept from your corrections); and the
 rebuild recipe.
 
-**The receiver**, on first use, runs the recipe before answering: resolve binds (stop and
-name any required one that is missing), rebuild instructions until the build examples
-reproduce, override any local setting that fights the skill (the carried definition is
-the authority), acceptance-test the held-back examples for the honest transfer score,
-report one line, cache, then run, checking every answer against the checks before sending.
+**The receiver's Claude rebuilds it.** On first use, before answering, it resolves the
+binds (and stops, naming any that are missing), writes itself instructions and retries
+until the build examples reproduce, and overrides any local setting that fights the
+skill (the carried definition is the authority). Then it grades the held-back acceptance
+examples for the transfer score, reports one line, caches the result, and runs, checking
+every answer against the checks before sending.
 
 **What the receiver sees** is one of three outcomes:
 - **"Built. Build examples matched N of M, acceptance score 0.84. Ready."** Use it.

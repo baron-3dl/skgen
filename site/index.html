@@ -30,7 +30,7 @@
   <div class="wrap">
     <span class="ey">self-building skills</span>
     <h1>Skills that don't break<br>when you share them.</h1>
-    <p class="lede">You got Claude doing something just right. You want your team's Claude to do it the same way, but it falls flat for them, because it quietly leaned on <b>your</b> setup. skillc is a <b>skill that makes skills</b>: install it, tell it what you want, and it hands you a new skill you can give to anyone.</p>
+    <p class="lede">You got Claude doing something just right. You share it, and for everyone else it falls flat, because it quietly leaned on <b>your</b> setup. skillc is a <b>skill that makes skills</b>: tell it what you want, show it a couple of examples you like, and it hands you one file you can send to anyone. Their Claude sets it up for itself.</p>
 
     <div class="install" id="get">
       <div class="install-top">
@@ -92,9 +92,9 @@ questions; it builds you a skill, no setup...
   <div class="wrap">
     <p class="kicker">what do you do with it</p>
     <h2>Watch the whole loop.</h2>
-    <p class="sub">Install skillc, give it a few lines you like, and it writes you a skill. Send that skill on and it sets itself up for whoever gets it. Install a skill, use a skill, both times.</p>
+    <p class="sub">You ask for a skill and show it what good looks like. It tries one, you approve or fix the test, and it hands you a file. Send that file to anyone; it sets itself up for whoever opens it.</p>
     <div class="chat" style="margin-top:26px">
-      <div class="chat-head"><span class="logo">C</span><span class="who">Claude</span><span class="pill">skillc</span></div>
+      <div class="chat-head"><span class="logo" aria-hidden="true"></span><span class="who">assistant</span><span class="pill">skillc</span></div>
       <div class="chat-body" id="chatBody"></div>
       <div class="chat-input"><div class="field" id="chatField"></div><div class="send">&uarr;</div></div>
     </div>
@@ -104,16 +104,16 @@ questions; it builds you a skill, no setup...
 <section id="how">
   <div class="wrap">
     <p class="kicker">how it works</p>
-    <h2>The file carries its own builder.</h2>
-    <p class="sub">It is a self-extracting skill. The moment someone uses it, before it answers, it builds itself against their Claude:</p>
+    <h2>The file rebuilds itself.</h2>
+    <p class="sub">A skill made by skillc does not carry finished instructions. It carries the examples you approved, plus a recipe for turning them into instructions. The first time someone uses it, before it answers:</p>
     <div class="flow">
-      <div class="node"><div class="ic">the file</div><h3>One skill, sent</h3><p>Your approved examples and the rebuild recipe, in one file.</p></div>
+      <div class="node"><div class="ic">the file</div><h3>One file, sent</h3><p>Your approved examples plus the rebuild recipe. Nothing else to ship.</p></div>
       <div class="arr">&rarr;</div>
-      <div class="node"><div class="ic">on open</div><h3>Rebuilds</h3><p>Re-derives the instructions for their model and setup.</p></div>
+      <div class="node"><div class="ic">on open</div><h3>Rebuilds</h3><p>Their Claude writes itself instructions that reproduce your examples, on their setup.</p></div>
       <div class="arr">&rarr;</div>
-      <div class="node"><div class="ic">checks</div><h3>Tests itself</h3><p>Against the examples you approved, that it never saw.</p></div>
+      <div class="node"><div class="ic">checks</div><h3>Grades itself</h3><p>On a few approved examples that were held back from the rebuild.</p></div>
       <div class="arr">&rarr;</div>
-      <div class="node"><div class="ic">result</div><h3>Runs, or says it couldn't</h3><p>Built, honest-failure, or cannot-build. No silent drift.</p></div>
+      <div class="node"><div class="ic">result</div><h3>Runs, or says so</h3><p>Reports a score and runs, or says plainly it could not build. Never quietly wrong.</p></div>
     </div>
   </div>
 </section>
@@ -122,7 +122,7 @@ questions; it builds you a skill, no setup...
   <div class="wrap">
     <p class="kicker">measure it yourself</p>
     <h2>Every skill reports its own transfer score.</h2>
-    <p class="sub">On first use in a new session, a skill rebuilds against a few held-back examples and prints an acceptance score from 0 to 1. Run it on a different model and you get a fresh number, no setup. Here is what that method produced for the example skills:</p>
+    <p class="sub">Every time a skill sets itself up somewhere new, it grades itself on those held-back examples and prints a score from 0 to 1. The same file on a different model gets you a fresh number, no setup. Here is what that produced for the example skills:</p>
     <div class="stats" style="grid-template-columns:repeat(3,1fr)">
       <div class="stat"><div class="n">0.93</div><div class="d">Voice skill, run in a session told to write in the opposite style. It held its style. Transfer score 0.93 against the original.</div></div>
       <div class="stat"><div class="n">18 of 18</div><div class="d">Build-then-use across every Opus, Sonnet, and Haiku maker-receiver pairing, two skills. All eighteen rebuilt in spec.</div></div>
@@ -213,7 +213,7 @@ Now start with STEP 1.`;
       {t:'user', x:'that is the one'},
       {t:'bot', x:'Done. Built your skill.', file:'voice.zip'},
       {t:'sys', x:'you send voice.zip to a teammate. they install it the same way you did.'},
-      {t:'bot', who:'Their Claude', x:'Built from voice.zip. I write in this voice now too.'}
+      {t:'bot', who:'their assistant', x:'Built from voice.zip. I write in this voice now too.'}
     ];
     function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
     function show(el){ requestAnimationFrame(function(){ el.classList.add('show'); }); body.scrollTop=body.scrollHeight; }
@@ -221,7 +221,7 @@ Now start with STEP 1.`;
     function bubble(x){ var el=document.createElement('div'); el.className='msg user'; el.textContent=x; body.appendChild(el); show(el); }
     function botEl(m){
       var el=document.createElement('div'); el.className='msg bot';
-      var nm=document.createElement('div'); nm.className='nm'; nm.textContent=m.who||'Claude'; el.appendChild(nm);
+      var nm=document.createElement('div'); nm.className='nm'; nm.textContent=m.who||'assistant'; el.appendChild(nm);
       var bd=document.createElement('div'); bd.className='bd'; if(m.x) bd.textContent=m.x;
       if(m.draft){
         var d=document.createElement('div'); d.className='draft';
@@ -248,7 +248,7 @@ Now start with STEP 1.`;
     }
     async function botMsg(m){
       var ti=document.createElement('div'); ti.className='msg bot show';
-      ti.innerHTML='<div class="nm">'+(m.who||'Claude')+'</div><div class="typing"><i></i><i></i><i></i></div>';
+      ti.innerHTML='<div class="nm">'+(m.who||'assistant')+'</div><div class="typing"><i></i><i></i><i></i></div>';
       body.appendChild(ti); body.scrollTop=body.scrollHeight;
       await sleep(950); ti.remove();
       var el=botEl(m); body.appendChild(el); show(el); await sleep(m.draft?1400:950);
